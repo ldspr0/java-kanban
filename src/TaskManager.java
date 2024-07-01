@@ -6,20 +6,36 @@ public class TaskManager {
     private static HashMap<Integer, Subtask> subtasks;
     private static HashMap<Integer, Epic> epics;
 
-    public static Task createTask() {
-
-        return new Task();
+    public static void init() {
+        id = 0;
     }
 
-    public static Subtask createSubtask() {
+    public static Task createRecord(String title, String description, TaskType type, int... epicId) {
 
-        return new Subtask();
+        switch (type) {
+            case TASK -> {
+                Task result = new Task(id, title, description, Status.NEW);
+                tasks.put(id++, result);
+            }
+            case EPIC -> {
+                Epic epic = new Epic(id, title, description, Status.NEW);
+                epics.put(id++, epic);
+            }
+            case SUBTASK -> {
+                if (epicId.length > 0) {
+                    Subtask subtask = new Subtask(id, title, description, Status.NEW, epicId[0]);
+                    subtasks.put(id++, subtask);
+                } else {
+                    System.out.println("Не возможно создать запись без epicId");
+                    return null;
+                }
+            }
+        }
+
+        System.out.println("Пожалуйста задайте корректный тип таски для создания");
+        return null;
     }
 
-    public static Epic createEpic() {
-
-        return new Epic();
-    }
 
     public static Task updateTask(Task task) {
 
