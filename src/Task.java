@@ -11,6 +11,17 @@ public class Task {
         this.status = status;
     }
 
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
+    }
+
+
     public int getId() {
         return id;
     }
@@ -42,6 +53,7 @@ public class Task {
     public void setStatus(Status status) {
         this.status = status;
     }
+
 
     @Override
     public boolean equals(Object obj) {

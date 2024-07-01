@@ -3,15 +3,20 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Поехали!");
+        TaskManager.init();
 
-        /*
-         Создайте в классе Main метод static void main(String[] args) и внутри него:
-Создайте две задачи, а также эпик с двумя подзадачами и эпик с одной подзадачей.
-Распечатайте списки эпиков, задач и подзадач через System.out.println(..).
-Измените статусы созданных объектов, распечатайте их. Проверьте, что статус задачи и подзадачи сохранился, а статус эпика рассчитался по статусам подзадач.
-И, наконец, попробуйте удалить одну из задач и один из эпиков.
-Воспользуйтесь дебаггером среды разработки, чтобы понять логику работы программы и отладить её.
+        // Test Сценарии
+        TestFactory.createTestData();
+        System.out.print("Get Data Test: ");
+        System.out.println(TestFactory.testGetData() ? "Passed" : "Error");
 
-         */
+        System.out.print("Update Data Test: ");
+        System.out.println(TestFactory.testUpdateData() ? "Passed" : "Error");
+
+        System.out.print("Create Duplicates Data Test: ");
+        System.out.println(TestFactory.testCreateDuplicateIds() ? "Passed" : "Error");
+
+        System.out.print("Remove Data Test: ");
+        System.out.println(TestFactory.testRemoveData() ? "Passed" : "Error");
     }
 }
