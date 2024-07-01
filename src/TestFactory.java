@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class TestFactory {
 
@@ -21,7 +20,7 @@ public class TestFactory {
 
         TaskManager.createRecord("Подзадача 2-1", "description", TaskType.SUBTASK, epicId2);// 11
 
-        int epicId3 = TaskManager.createRecord("Эпик 3", "description", TaskType.EPIC);// 12
+        TaskManager.createRecord("Эпик 3", "description", TaskType.EPIC);// 12
     }
 
     public static boolean testGetData() {
@@ -148,7 +147,7 @@ public class TestFactory {
         if (!testEpic.getTitle().equals("Эпик 2") || testEpic.getStatus() != Status.NEW) {
             return false;
         }
-        if (testEpic.getSubtasks().size() != 0) {
+        if (!testEpic.getSubtasks().isEmpty()) {
             return false;
         }
 
@@ -184,7 +183,7 @@ public class TestFactory {
         // удалить все
         TaskManager.clearAllRecords();
         ArrayList<Task> allRecords = TaskManager.getAllRecords();
-        if (allRecords.size() != 0) {
+        if (!allRecords.isEmpty()) {
             return false;
         }
 

@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Epic extends Task {
@@ -63,7 +62,4 @@ public class Epic extends Task {
         return subtasks;
     }
 
-    public void setSubtasks(HashSet<Integer> subtasks) {
-        this.subtasks = subtasks;
-    }
 }
