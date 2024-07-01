@@ -1,11 +1,12 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Epic extends Task {
-    private ArrayList<Integer> subtasks;
+    private HashSet<Integer> subtasks;
 
-    public Epic(int id, String title, String description, Status status) {
-        super(id, title, description, status);
-        this.subtasks = new ArrayList<>();
+    public Epic(int id, String title, String description) {
+        super(id, title, description, Status.NEW);
+        this.subtasks = new HashSet<>();
     }
 
     public void recalculateStatus() {
@@ -58,11 +59,11 @@ public class Epic extends Task {
         recalculateStatus();
     }
 
-    public ArrayList<Integer> getSubtasks() {
+    public HashSet<Integer> getSubtasks() {
         return subtasks;
     }
 
-    public void setSubtasks(ArrayList<Integer> subtasks) {
+    public void setSubtasks(HashSet<Integer> subtasks) {
         this.subtasks = subtasks;
     }
 }

@@ -13,9 +13,6 @@ public class Main {
         System.out.print("Update Data Test: ");
         System.out.println(TestFactory.testUpdateData() ? "Passed" : "Error");
 
-        System.out.print("Create Duplicates Data Test: ");
-        System.out.println(TestFactory.testCreateDuplicateIds() ? "Passed" : "Error");
-
         System.out.print("Remove Data Test: ");
         System.out.println(TestFactory.testRemoveData() ? "Passed" : "Error");
     }

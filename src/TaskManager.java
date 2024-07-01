@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class TaskManager {
     public static int id;
@@ -21,7 +22,7 @@ public class TaskManager {
                 tasks.put(id, task);
                 break;
             case EPIC:
-                Epic epic = new Epic(id, title, description, Status.NEW);
+                Epic epic = new Epic(id, title, description);
                 epics.put(id, epic);
                 break;
             case SUBTASK:
@@ -52,19 +53,46 @@ public class TaskManager {
 
     public static void updateRecord(Subtask subtask) {
         subtasks.put(subtask.getId(), subtask);
+        Epic parentEpic = (Epic) getRecord(subtask.getEpicId(), TaskType.EPIC);
+        parentEpic.recalculateStatus();
     }
 
 
     public static void deleteRecord(int id, TaskType type) {
         switch (type) {
-            case EPIC -> epics.remove(id);
-            case SUBTASK -> subtasks.remove(id);
-            case TASK -> tasks.remove(id);
+            case EPIC:
+                epics.remove(id);
+                break;
+            case SUBTASK:
+                Subtask subtask = (Subtask) getRecord(id, TaskType.SUBTASK);
+                if (subtask == null) {
+                    break;
+                }
+                Epic epic = (Epic) getRecord(subtask.getEpicId(), TaskType.EPIC);
+                if (epic == null) {
+                    break;
+                }
+                HashSet<Integer> subtaskFromEpic = epic.getSubtasks();
+                for (Integer each : subtaskFromEpic) {
+                    if (each == id) {
+                        subtaskFromEpic.remove(each);
+                        break;
+                    }
+                }
+                epic.recalculateStatus();
+                subtasks.remove(id);
+                break;
+            case TASK:
+                tasks.remove(id);
         }
     }
 
     public static void deleteRecord(int id) {
-        //TODO: Доделать удаление из всех
+        if (tasks.remove(id) == null) {
+            if (epics.remove(id) == null) {
+                subtasks.remove(id);
+            }
+        }
     }
 
     public static void clearAllRecords() {
@@ -76,7 +104,7 @@ public class TaskManager {
     // Либо разбивать на 3 разных метода getTask и т.д. либо ставить Таск как Тип, в обоих случаях нужно знать тип
     // возвращаемого значения
     public static Task getRecord(int id, TaskType type) {
-        return switch(type) {
+        return switch (type) {
             case EPIC -> epics.get(id);
             case SUBTASK -> subtasks.get(id);
             case TASK -> tasks.get(id);
