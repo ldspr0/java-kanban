@@ -1,7 +1,13 @@
+package ru.yandex.taskmanager.model;
+
+import ru.yandex.taskmanager.enums.Status;
+import ru.yandex.taskmanager.enums.TaskType;
+import ru.yandex.taskmanager.service.TaskManager;
+
 import java.util.HashSet;
 
 public class Epic extends Task {
-    private HashSet<Integer> subtasks;
+    private final HashSet<Integer> subtasks;
 
     public Epic(int id, String title, String description) {
         super(id, title, description, Status.NEW);
@@ -20,6 +26,11 @@ public class Epic extends Task {
 
             // Если хотя бы один сабтаск в ин прогресс значит Эпик в ин прогресс
             // При добавлении других статусов (UAT/Re-Opened и т.д.) ничего не сломается
+
+            /* Вопрос: А если у одной подзадачи статус DONE, а у всех остальных NEW,
+                то какой должен быть статус у эпика и какой у тебя?
+                Ответ: То будет IN_PROGRESS же, это обрабатывается ниже после всего цикла for
+             */
             if (status != Status.NEW && status != Status.DONE) {
                 super.setStatus(Status.IN_PROGRESS);
                 return;
@@ -43,17 +54,6 @@ public class Epic extends Task {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Epic{" +
-                "id=" + super.getId() +
-                ", title='" + super.getTitle() + '\'' +
-                ", description='" + super.getDescription() + '\'' +
-                ", status=" + super.getStatus() +
-                ", subtasks=" + subtasks +
-                '}';
-    }
-
     public void setStatus(Status status) {
         recalculateStatus();
     }
@@ -62,4 +62,14 @@ public class Epic extends Task {
         return subtasks;
     }
 
+    @Override
+    public String toString() {
+        return "ru.yandex.taskmanager.model.Epic{" +
+                "id=" + super.getId() +
+                ", title='" + super.getTitle() + '\'' +
+                ", description='" + super.getDescription() + '\'' +
+                ", status=" + super.getStatus() +
+                ", subtasks=" + getSubtasks() +
+                '}';
+    }
 }

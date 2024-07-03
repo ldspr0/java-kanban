@@ -1,21 +1,29 @@
+package ru.yandex.taskmanager.service;
+
+import ru.yandex.taskmanager.enums.Status;
+import ru.yandex.taskmanager.enums.TaskType;
+import ru.yandex.taskmanager.model.Epic;
+import ru.yandex.taskmanager.model.Subtask;
+import ru.yandex.taskmanager.model.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 public class TaskManager {
-    public static int id;
-    private static HashMap<Integer, Task> tasks;
-    private static HashMap<Integer, Epic> epics;
-    private static HashMap<Integer, Subtask> subtasks;
+    public int id = 0;
+    private HashMap<Integer, Task> tasks;
+    private HashMap<Integer, Epic> epics;
+    private HashMap<Integer, Subtask> subtasks;
 
-    public static void init() {
+    public  void init() {
         id = 0;
         tasks = new HashMap<>();
         epics = new HashMap<>();
         subtasks = new HashMap<>();
     }
 
-    public static int createRecord(String title, String description, TaskType type, int... epicId) {
+    public int createRecord(String title, String description, TaskType type, int... epicId) {
         switch (type) {
             case TASK:
                 Task task = new Task(id, title, description, Status.NEW);
@@ -43,22 +51,22 @@ public class TaskManager {
         return id++;
     }
 
-    public static void updateRecord(Task task) {
+    public void updateRecord(Task task) {
         tasks.put(task.getId(), task);
     }
 
-    public static void updateRecord(Epic epic) {
+    public void updateRecord(Epic epic) {
         epics.put(epic.getId(), epic);
     }
 
-    public static void updateRecord(Subtask subtask) {
+    public void updateRecord(Subtask subtask) {
         subtasks.put(subtask.getId(), subtask);
         Epic parentEpic = (Epic) getRecord(subtask.getEpicId(), TaskType.EPIC);
         parentEpic.recalculateStatus();
     }
 
 
-    public static void deleteRecord(int id, TaskType type) {
+    public void deleteRecord(int id, TaskType type) {
         switch (type) {
             case EPIC:
                 epics.remove(id);
@@ -87,7 +95,7 @@ public class TaskManager {
         }
     }
 
-    public static void deleteRecord(int id) {
+    public void deleteRecord(int id) {
         if (tasks.remove(id) == null) {
             if (epics.remove(id) == null) {
                 subtasks.remove(id);
@@ -95,7 +103,7 @@ public class TaskManager {
         }
     }
 
-    public static void clearAllRecords() {
+    public void clearAllRecords() {
         epics.clear();
         subtasks.clear();
         tasks.clear();
@@ -103,7 +111,7 @@ public class TaskManager {
 
     // Либо разбивать на 3 разных метода getTask и т.д. либо ставить Таск как Тип, в обоих случаях нужно знать тип
     // возвращаемого значения
-    public static Task getRecord(int id, TaskType type) {
+    public Task getRecord(int id, TaskType type) {
         return switch (type) {
             case EPIC -> epics.get(id);
             case SUBTASK -> subtasks.get(id);
@@ -112,7 +120,7 @@ public class TaskManager {
 
     }
 
-    public static ArrayList<Task> getAllRecords() {
+    public ArrayList<Task> getAllRecords() {
         ArrayList<Task> result = new ArrayList<>(tasks.values());
         result.addAll(epics.values());
         result.addAll(subtasks.values());

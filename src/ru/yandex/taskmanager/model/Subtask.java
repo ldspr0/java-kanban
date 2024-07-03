@@ -1,3 +1,8 @@
+package ru.yandex.taskmanager.model;
+
+import ru.yandex.taskmanager.enums.Status;
+import ru.yandex.taskmanager.enums.TaskType;
+import ru.yandex.taskmanager.service.TaskManager;
 
 public class Subtask extends Task {
     private int epicId;
@@ -13,17 +18,6 @@ public class Subtask extends Task {
 
     }
 
-    @Override
-    public String toString() {
-        return "Subtask{" +
-                "id=" + super.getId() +
-                ", title='" + super.getTitle() + '\'' +
-                ", description='" + super.getDescription() + '\'' +
-                ", status=" + super.getStatus() +
-                ", epicId=" + epicId +
-                '}';
-    }
-
     public void setStatus(Status status) {
         super.setStatus(status);
         TaskManager.getRecord(epicId, TaskType.EPIC).setStatus(status);
@@ -33,4 +27,14 @@ public class Subtask extends Task {
         return epicId;
     }
 
+    @Override
+    public String toString() {
+        return "ru.yandex.taskmanager.model.Subtask{" +
+                "id=" + super.getId() +
+                ", title='" + super.getTitle() + '\'' +
+                ", description='" + super.getDescription() + '\'' +
+                ", status=" + super.getStatus() +
+                ", epicId=" + getEpicId() +
+                '}';
+    }
 }
