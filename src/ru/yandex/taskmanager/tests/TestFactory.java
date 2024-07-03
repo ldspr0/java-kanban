@@ -1,7 +1,6 @@
 package ru.yandex.taskmanager.tests;
 
 import ru.yandex.taskmanager.enums.Status;
-import ru.yandex.taskmanager.enums.TaskType;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
@@ -12,54 +11,67 @@ import java.util.ArrayList;
 public class TestFactory {
 
     public static void createTestData(TaskManager taskManager) {
-        taskManager.createRecord("Задача 1", "description", TaskType.TASK); // 0
-        taskManager.createRecord("Задача 2", "description", TaskType.TASK); // 1
-        taskManager.createRecord("Задача 3", "description", TaskType.TASK); // 2
-        taskManager.createRecord("Задача 4", "description", TaskType.TASK); // 3
-        taskManager.createRecord("Задача 5", "description", TaskType.TASK); // 4
 
-        int epicId1 = taskManager.createRecord("Эпик 1", "description", TaskType.EPIC); // 5
+        taskManager.createRecord(new Task(0, "Задача 1", "description", Status.NEW));
+        taskManager.createRecord(new Task(1, "Задача 2", "description", Status.NEW));
+        taskManager.createRecord(new Task(2, "Задача 3", "description", Status.NEW));
+        taskManager.createRecord(new Task(3, "Задача 4", "description", Status.NEW));
+        taskManager.createRecord(new Task(4, "Задача 5", "description", Status.NEW));
 
-        taskManager.createRecord("Подзадача 1-1", "description", TaskType.SUBTASK, epicId1);// 6
-        taskManager.createRecord("Подзадача 1-2", "description", TaskType.SUBTASK, epicId1);// 7
-        taskManager.createRecord("Подзадача 1-3", "description", TaskType.SUBTASK, epicId1);// 8
-        taskManager.createRecord("Подзадача 1-4", "description", TaskType.SUBTASK, epicId1);// 9
+        int epicId1 = taskManager.createRecord(new Epic(5, "Эпик 1", "description"));
 
-        int epicId2 = taskManager.createRecord("Эпик 2", "description", TaskType.EPIC);// 10
+        taskManager.createRecord(new Subtask(6, "Подзадача 1-1", "description", Status.NEW, epicId1));
+        taskManager.createRecord(new Subtask(7, "Подзадача 1-2", "description", Status.NEW, epicId1));
+        taskManager.createRecord(new Subtask(8, "Подзадача 1-3", "description", Status.NEW, epicId1));
+        taskManager.createRecord(new Subtask(9, "Подзадача 1-4", "description", Status.NEW, epicId1));
 
-        taskManager.createRecord("Подзадача 2-1", "description", TaskType.SUBTASK, epicId2);// 11
+        int epicId2 = taskManager.createRecord(new Epic(10, "Эпик 2", "description"));
 
-        taskManager.createRecord("Эпик 3", "description", TaskType.EPIC);// 12
+        taskManager.createRecord(new Subtask(11, "Подзадача 2-1", "description", Status.NEW, epicId2));
+
+        taskManager.createRecord(new Epic(12, "Эпик 3", "description"));
     }
 
     public static boolean testGetData(TaskManager taskManager) {
         // получить Таску из Тасок
-        Task testTask = taskManager.getRecord(2, TaskType.TASK);
+        Task testTask = taskManager.getTask(2);
         if (!testTask.getTitle().equals("Задача 3")) {
             return false;
         }
 
         // получить Сабтаск из Сабтасок
-        Subtask testTask2 = (Subtask) taskManager.getRecord(7, TaskType.SUBTASK);
+        Subtask testTask2 = taskManager.getSubtask(7);
         if (!testTask2.getTitle().equals("Подзадача 1-2")) {
             return false;
         }
 
         // получить Эпик из Эпиков и проверить что Сабтаски отвязаны (удалены?)
-        Epic testTask3 = (Epic) taskManager.getRecord(10, TaskType.EPIC);
+        Epic testTask3 = taskManager.getEpic(10);
         if (!testTask3.getTitle().equals("Эпик 2")) {
             return false;
         }
 
         // получить Таску из Сабтасок
-        Task testTask4 = taskManager.getRecord(2, TaskType.SUBTASK);
+        Task testTask4 = taskManager.getSubtask(2);
         if (testTask4 != null) {
             return false;
         }
 
         // получить все таски
-        ArrayList<Task> tasks = taskManager.getAllRecords();
-        if (tasks.size() != 13) {
+        ArrayList<Task> tasks = taskManager.getAllTasks();
+        if (tasks.size() != 5) {
+            return false;
+        }
+
+        // получить все сабтаски
+        ArrayList<Subtask> subtasks = taskManager.getAllSubtasks();
+        if (subtasks.size() != 5) {
+            return false;
+        }
+
+        // получить все эпики
+        ArrayList<Epic> epics = taskManager.getAllEpics();
+        if (epics.size() != 3) {
             return false;
         }
 
@@ -71,7 +83,7 @@ public class TestFactory {
         // Обновляем Таску
         Task testTask = new Task(2, "Новая Задача 3", "description", Status.IN_PROGRESS);
         taskManager.updateRecord(testTask);
-        testTask = taskManager.getRecord(2, TaskType.TASK);
+        testTask = taskManager.getTask(2);
         if (!testTask.getTitle().equals("Новая Задача 3") || testTask.getStatus() != Status.IN_PROGRESS) {
             return false;
         }
@@ -81,7 +93,7 @@ public class TestFactory {
         Epic testEpic = new Epic(12, "Новый Эпик 3", "description");
         taskManager.updateRecord(testEpic);
         testEpic.setStatus(Status.IN_PROGRESS);
-        testEpic = (Epic) taskManager.getRecord(12, TaskType.EPIC);
+        testEpic = taskManager.getEpic(12);
         if (!testEpic.getTitle().equals("Новый Эпик 3") || testEpic.getStatus() != Status.NEW) {
             return false;
         }
@@ -96,22 +108,23 @@ public class TestFactory {
         // общее
         Subtask testSubtask = new Subtask(8, "Новая Подзадача 1-3", "description", Status.IN_PROGRESS, 5);
         taskManager.updateRecord(testSubtask);
-        testSubtask = (Subtask) taskManager.getRecord(8, TaskType.SUBTASK);
+        testSubtask = taskManager.getSubtask(8);
         if (!testSubtask.getTitle().equals("Новая Подзадача 1-3") || testSubtask.getStatus() != Status.IN_PROGRESS) {
             return false;
         }
         // обновляем статус с 1 эпиком
-        testEpic = (Epic) taskManager.getRecord(10, TaskType.EPIC);
+        testEpic = taskManager.getEpic(10);
         if (!testEpic.getTitle().equals("Эпик 2") || testEpic.getStatus() != Status.NEW) {
             return false;
         }
-        testSubtask = (Subtask) taskManager.getRecord(11, TaskType.SUBTASK);
+        testSubtask = taskManager.getSubtask(11);
         testSubtask.setStatus(Status.DONE);
+        taskManager.updateRecord(testSubtask);
         if (!testEpic.getTitle().equals("Эпик 2") || testEpic.getStatus() != Status.DONE) {
             return false;
         }
         // обновляем статус с 2+ эпиками
-        testEpic = (Epic) taskManager.getRecord(5, TaskType.EPIC);
+        testEpic = taskManager.getEpic(5);
         if (!testEpic.getTitle().equals("Эпик 1") || testEpic.getStatus() != Status.IN_PROGRESS) {
             return false;
         }
@@ -122,27 +135,27 @@ public class TestFactory {
     public static boolean testRemoveData(TaskManager taskManager) {
 
         // удалить Таску из Тасок
-        ArrayList<Task> tasks = taskManager.getAllRecords();
-        if (tasks.size() != 13) {
+        ArrayList<Task> tasks = taskManager.getAllTasks();
+        if (tasks.size() != 5) {
             return false;
         }
 
-        taskManager.deleteRecord(1, TaskType.TASK);
-        tasks = taskManager.getAllRecords();
-        if (tasks.size() != 12) {
+        taskManager.deleteTask(1);
+        tasks = taskManager.getAllTasks();
+        if (tasks.size() != 4) {
             return false;
         }
 
         // удалить Сабтаск из Сабтасок (проверка пересчета статуса эпика) (из эпика с сабтасками > 1)
-        taskManager.deleteRecord(8, TaskType.SUBTASK);
-        tasks = taskManager.getAllRecords();
-        if (tasks.size() != 11) {
+        taskManager.deleteSubtask(8);
+        ArrayList<Subtask> subtasks = taskManager.getAllSubtasks();
+        if (subtasks.size() != 4) {
             return false;
         }
-        if (taskManager.getRecord(8, TaskType.SUBTASK) != null) {
+        if (taskManager.getSubtask(8) != null) {
             return false;
         }
-        Epic testEpic = (Epic) taskManager.getRecord(5, TaskType.EPIC);
+        Epic testEpic = taskManager.getEpic(5);
         if (!testEpic.getTitle().equals("Эпик 1") || testEpic.getStatus() != Status.NEW) {
             return false;
         }
@@ -151,8 +164,8 @@ public class TestFactory {
         }
 
         // удалить Сабтаск из Сабтасок (проверка пересчета статуса эпика) (из эпика с сабтасками = 1)
-        taskManager.deleteRecord(11, TaskType.SUBTASK);
-        testEpic = (Epic) taskManager.getRecord(10, TaskType.EPIC);
+        taskManager.deleteSubtask(11);
+        testEpic = taskManager.getEpic(10);
         if (!testEpic.getTitle().equals("Эпик 2") || testEpic.getStatus() != Status.NEW) {
             return false;
         }
@@ -161,38 +174,87 @@ public class TestFactory {
         }
 
         // удалить Эпик из Эпиков
-        taskManager.createRecord("Подзадача 2-1", "description", TaskType.SUBTASK, 10);// 13
+        taskManager.createRecord(new Subtask(13, "Подзадача 2-1", "description", Status.NEW, 10));
         if (testEpic.getSubtasks().size() != 1) {
             return false;
         }
-        taskManager.deleteRecord(10, TaskType.EPIC);
-        testEpic = (Epic) taskManager.getRecord(10, TaskType.EPIC);
+        taskManager.deleteEpic(10);
+        testEpic = taskManager.getEpic(10);
         if (testEpic != null) {
             return false;
         }
 
         // удалить Таску из Сабтасок
-        taskManager.deleteRecord(2, TaskType.SUBTASK);
-        Subtask subtask = (Subtask) taskManager.getRecord(2, TaskType.SUBTASK);
+        taskManager.deleteSubtask(2);
+        Subtask subtask = taskManager.getSubtask(2);
         if (subtask != null) {
             return false;
         }
 
         // удалить Таску по id
-        taskManager.deleteRecord(0);
-        Task testTask = taskManager.getRecord(0, TaskType.TASK);
+        taskManager.deleteTask(0);
+        Task testTask = taskManager.getTask(0);
         if (testTask != null) {
             return false;
         }
 
         // удалить Таску по не существущему id
-        taskManager.deleteRecord(123);
+        taskManager.deleteTask(123);
+        taskManager.deleteEpic(123);
+        taskManager.deleteSubtask(123);
 
+        // удалить все таски
+        taskManager.clearTasks();
+        ArrayList<Task> allTasks = taskManager.getAllTasks();
+        ArrayList<Subtask> allSubtasks = taskManager.getAllSubtasks();
+        ArrayList<Epic> allEpics = taskManager.getAllEpics();
 
-        // удалить все
-        taskManager.clearAllRecords();
-        ArrayList<Task> allRecords = taskManager.getAllRecords();
-        if (!allRecords.isEmpty()) {
+        if (!allTasks.isEmpty()) {
+            return false;
+        }
+        if (allSubtasks.isEmpty()) {
+            return false;
+        }
+        if (allEpics.isEmpty()) {
+            return false;
+        }
+
+        // удалить все сабтаски
+        taskManager.clearSubtasks();
+        allTasks = taskManager.getAllTasks();
+        allSubtasks = taskManager.getAllSubtasks();
+        allEpics = taskManager.getAllEpics();
+
+        if (!allTasks.isEmpty()) {
+            return false;
+        }
+        if (!allSubtasks.isEmpty()) {
+            return false;
+        }
+        if (allEpics.isEmpty()) {
+            return false;
+        }
+
+        // удалить все эпики
+        // добавим 1 сабтаску обратно
+        taskManager.createRecord(new Subtask(14, "Подзадача 1-5", "description", Status.NEW, 5));
+        allSubtasks = taskManager.getAllSubtasks();
+        if (allSubtasks.isEmpty()) {
+            return false;
+        }
+
+        taskManager.clearEpics();
+
+        allSubtasks = taskManager.getAllSubtasks();
+        allEpics = taskManager.getAllEpics();
+
+        if (!allTasks.isEmpty()) {
+            return false;
+        }
+        if (!allSubtasks.isEmpty()) {
+            return false;
+        }
+        if (!allEpics.isEmpty()) {
             return false;
         }
 

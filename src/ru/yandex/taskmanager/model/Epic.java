@@ -1,9 +1,8 @@
 package ru.yandex.taskmanager.model;
 
 import ru.yandex.taskmanager.enums.Status;
-import ru.yandex.taskmanager.enums.TaskType;
-import ru.yandex.taskmanager.service.TaskManager;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Epic extends Task {
@@ -14,15 +13,15 @@ public class Epic extends Task {
         this.subtasks = new HashSet<>();
     }
 
-    public void recalculateStatus() {
+    public void recalculateStatus(ArrayList<Subtask> subtasks) {
         if (subtasks.isEmpty()) {
             super.setStatus(Status.NEW);
             return;
         }
 
         int countStatusDone = 0;
-        for (Integer id : subtasks) {
-            Status status = TaskManager.getRecord(id, TaskType.SUBTASK).getStatus();
+        for (Subtask each : subtasks) {
+            Status status = each.getStatus();
 
             // Если хотя бы один сабтаск в ин прогресс значит Эпик в ин прогресс
             // При добавлении других статусов (UAT/Re-Opened и т.д.) ничего не сломается
@@ -54,8 +53,9 @@ public class Epic extends Task {
         }
     }
 
+
     public void setStatus(Status status) {
-        recalculateStatus();
+        // Статус будет меняться в зависимости от Статуса Сабтасок.
     }
 
     public HashSet<Integer> getSubtasks() {

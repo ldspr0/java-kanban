@@ -6,11 +6,6 @@ import ru.yandex.taskmanager.tests.TestFactory;
 public class Main {
 
     public static void main(String[] args) {
-        /*
-        В случае когда TaskManager был утилитарным классом, все айдишники и данные о тасках были общие.
-        Если делать через экземпляр класса, то для программы можно будет запустить несколько
-        разных версий таск менеджеров. Имхо, выбор реализации больше зависит от способов/целей использования.
-         */
 
         System.out.println("Поехали!");
         TaskManager taskManager = new TaskManager();
