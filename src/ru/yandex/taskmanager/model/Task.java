@@ -48,7 +48,7 @@ public class Task {
      */
     @Override
     public String toString() {
-        return "ru.yandex.taskmanager.model.Task{" +
+        return "Task{" +
                 "id=" + getId() +
                 ", title='" + getTitle() + '\'' +
                 ", description='" + getDescription() + '\'' +

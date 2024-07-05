@@ -64,7 +64,7 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "ru.yandex.taskmanager.model.Epic{" +
+        return "Epic{" +
                 "id=" + super.getId() +
                 ", title='" + super.getTitle() + '\'' +
                 ", description='" + super.getDescription() + '\'' +

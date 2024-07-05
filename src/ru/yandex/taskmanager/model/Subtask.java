@@ -20,7 +20,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "ru.yandex.taskmanager.model.Subtask{" +
+        return "Subtask{" +
                 "id=" + super.getId() +
                 ", title='" + super.getTitle() + '\'' +
                 ", description='" + super.getDescription() + '\'' +
