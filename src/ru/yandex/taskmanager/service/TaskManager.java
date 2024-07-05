@@ -1,13 +1,14 @@
 package ru.yandex.taskmanager.service;
 
-import ru.yandex.taskmanager.enums.Status;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class TaskManager {
     public static int id = 0;
@@ -15,8 +16,18 @@ public class TaskManager {
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
+    /*
+    1. Дословно от ментора, указания для выполнения тз4:
+        (важно - при добавлении таски менеджер возвращает присвоенный айдишник!!!)
+        далее по полученному айдишнику получили таску - и в коде можно написать проверку, что таска есть и т.д.
+
+    2. Для меня было логичным, что все таски создаются в NEW, но если мы хотим расширить функционал, то давайте
+    3. Специально не хочу открывать доступ к методу setId(),
+        потому что присвоением айдшиников таскам должен управлять TaskManager
+    */
+
     public int createRecord(Task task) {
-        this.tasks.put(id, new Task(id, task.getTitle(), task.getDescription(), Status.NEW));
+        this.tasks.put(id, new Task(id, task.getTitle(), task.getDescription(), task.getStatus()));
         return id++;
     }
 
@@ -26,10 +37,9 @@ public class TaskManager {
     }
 
     public int createRecord(Subtask subtask) {
-        subtasks.put(id, new Subtask(id, subtask.getTitle(), subtask.getDescription(), Status.NEW, subtask.getEpicId()));
-
         Epic parentRecord = getEpic(subtask.getEpicId());
         if (parentRecord != null) {
+            subtasks.put(id, new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
             parentRecord.getSubtasks().add(id);
         }
 
@@ -65,6 +75,12 @@ public class TaskManager {
     public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
         ArrayList<Subtask> result = new ArrayList<>();
 
+        /* For нужен потому что epic хранит только айдишники сабтасок, а не сами сабтаски.
+        --
+        Дословно ментор:
+        * в эпике хранятся только айдишники сабтасков.
+        --
+         */
         for (Integer subtaskId : getEpic(epicId).getSubtasks()) {
             result.add(getSubtask(subtaskId));
         }
@@ -79,6 +95,12 @@ public class TaskManager {
         if (epic != null) {
             epics.remove(id);
             for (Integer eachId : epic.getSubtasks()) {
+                /*
+                 Такой метод мне показался более логичным, так как вместе с удалением сабтасок, может происходить
+                 какая-то доп. калькуляция и то что мы удаляем, в одном месте одним способом, а в другом другим,
+                 это не очень хорошо, поэтому я в самом методе предусмотрел, чтобы при отсутсвии эпика, он делал
+                 минимум действий.
+                 */
                 deleteSubtask(eachId);
             }
         }
@@ -94,6 +116,7 @@ public class TaskManager {
         if (subtask == null) {
             return;
         }
+        // Это проверка для более "быстрого" удаления
         Epic epic = getEpic(subtask.getEpicId());
         if (epic == null) {
             subtasks.remove(id);
@@ -121,7 +144,10 @@ public class TaskManager {
     }
 
     public void clearSubtasks() {
-        subtasks.clear();
+        ArrayList<Subtask> subtasksToDelete = new ArrayList<>(subtasks.values());
+        for (Subtask subtask : subtasksToDelete) {
+            deleteSubtask(subtask.getId());
+        }
     }
 
     public ArrayList<Task> getAllTasks() {

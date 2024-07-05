@@ -14,6 +14,14 @@ public class Epic extends Task {
     }
 
     public void recalculateStatus(ArrayList<Subtask> subtasks) {
+        /*
+        По поводу передачи айди эпика именно сюда, зачем? это и так метод ЭПИКА у кого мы пересчитываем,
+        Он и так знает что он за эпик.
+        Реализация бы сильно упростилась если бы в сабтасках были бы не айдишники, а сами сабтаски, но увы, причины
+        описаны в таск менеджере. Что можно было бы сделать так это вытащить этот метод в Таск Менеджер и передавать
+        внутрь него, сразу лист статусов
+         */
+
         if (subtasks.isEmpty()) {
             super.setStatus(Status.NEW);
             return;
@@ -23,13 +31,6 @@ public class Epic extends Task {
         for (Subtask each : subtasks) {
             Status status = each.getStatus();
 
-            // Если хотя бы один сабтаск в ин прогресс значит Эпик в ин прогресс
-            // При добавлении других статусов (UAT/Re-Opened и т.д.) ничего не сломается
-
-            /* Вопрос: А если у одной подзадачи статус DONE, а у всех остальных NEW,
-                то какой должен быть статус у эпика и какой у тебя?
-                Ответ: То будет IN_PROGRESS же, это обрабатывается ниже после всего цикла for
-             */
             if (status != Status.NEW && status != Status.DONE) {
                 super.setStatus(Status.IN_PROGRESS);
                 return;
@@ -38,11 +39,6 @@ public class Epic extends Task {
                 countStatusDone++;
             }
         }
-
-        /*
-         Проверку на текущий статус не добавляю, по скольку не работаем сейчас с БД, поэтому вместо усложнения кода,
-         я лучше еще раз запишу в поле тоже самое значение.
-         */
 
         if (countStatusDone == subtasks.size()) {
             super.setStatus(Status.DONE);

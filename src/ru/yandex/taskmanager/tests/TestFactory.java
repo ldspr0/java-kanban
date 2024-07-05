@@ -235,6 +235,12 @@ public class TestFactory {
             return false;
         }
 
+        // проверка что внутри эпика не осталось ссылок на сабтаски
+        testEpic = taskManager.getEpic(5);
+        if (!testEpic.getTitle().equals("Эпик 1") || !testEpic.getSubtasks().isEmpty()) {
+            return false;
+        }
+
         // удалить все эпики
         // добавим 1 сабтаску обратно
         taskManager.createRecord(new Subtask(14, "Подзадача 1-5", "description", Status.NEW, 5));
