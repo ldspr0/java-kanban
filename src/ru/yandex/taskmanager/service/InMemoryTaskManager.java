@@ -1,8 +1,10 @@
 package ru.yandex.taskmanager.service;
 
+import ru.yandex.taskmanager.historyTracker.HistoryManager;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
+import ru.yandex.taskmanager.utility.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import java.util.HashSet;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
@@ -55,23 +58,31 @@ public class InMemoryTaskManager implements TaskManager {
         parentEpic.recalculateStatus(getSubtasksByEpicId(subtask.getEpicId()));
     }
 
+    // Как лучше? Как написано или как в комменте? Я вижу что как в комменте короче, но как будто бы, тогда ему
+    // придется 2 раза проходить по листу тасок, один раз для истории, один раз, чтобы вернуть значение.
+    /*
+        historyManager.add(tasks.get(id));
+        return tasks.get(id);
+     */
     @Override
     public Task getTask(int id) {
-        // TODO: add history
-        return tasks.get(id);
+        Task result = tasks.get(id);
+        historyManager.add(result);
+        return result;
     }
 
     @Override
     public Subtask getSubtask(int id) {
-        // TODO: add history
-        return subtasks.get(id);
-
+        Subtask result = subtasks.get(id);
+        historyManager.add(result);
+        return result;
     }
 
     @Override
     public Epic getEpic(int id) {
-        // TODO: add history
-        return epics.get(id);
+        Epic result = epics.get(id);
+        historyManager.add(result);
+        return result;
     }
 
     @Override
@@ -157,6 +168,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Subtask> getAllSubtasks() {
         return new ArrayList<>(subtasks.values());
+    }
+
+    @Override
+    public ArrayList<Task> getHistory() {
+        return historyManager.getHistory();
     }
 }
 
