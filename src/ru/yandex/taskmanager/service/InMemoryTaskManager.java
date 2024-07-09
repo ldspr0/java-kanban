@@ -8,7 +8,6 @@ import ru.yandex.taskmanager.utility.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
@@ -35,7 +34,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic parentRecord = getEpic(subtask.getEpicId());
         if (parentRecord != null) {
             subtasks.put(id, new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
-            parentRecord.getSubtasks().add(id);
+            parentRecord.getSubtaskIds().add(id);
         }
 
         return id++;
@@ -89,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
     public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
         ArrayList<Subtask> result = new ArrayList<>();
 
-        for (Integer subtaskId : getEpic(epicId).getSubtasks()) {
+        for (Integer subtaskId : getEpic(epicId).getSubtaskIds()) {
             result.add(getSubtask(subtaskId));
         }
         return result;
@@ -100,7 +99,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = getEpic(id);
         if (epic != null) {
             epics.remove(id);
-            for (Integer eachId : epic.getSubtasks()) {
+            for (Integer eachId : epic.getSubtaskIds()) {
                 deleteSubtask(eachId);
             }
         }
@@ -118,20 +117,17 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtask == null) {
             return;
         }
-        // Это проверка для более "быстрого" удаления
+        // Это проверка для более "быстрого" удаления (случается только при удалении Эпика)
         Epic epic = getEpic(subtask.getEpicId());
         if (epic == null) {
             subtasks.remove(id);
             return;
         }
-        HashSet<Integer> subtaskFromEpic = epic.getSubtasks();
-        for (Integer each : subtaskFromEpic) {
-            if (each == id) {
-                subtaskFromEpic.remove(each);
-                break;
-            }
-        }
+        // Удалить из внутреннего листа эпика
+        epic.getSubtaskIds().remove(id);
+        // Пересчитать статус основываясь на внутреннем листе
         epic.recalculateStatus(getSubtasksByEpicId(epic.getId()));
+        // Удалить из внешнего листа сабтасков
         subtasks.remove(id);
     }
 

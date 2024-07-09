@@ -6,12 +6,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Epic extends Task {
-    private final HashSet<Integer> subtasks;
+    private final HashSet<Integer> subtaskIds;
 
     public Epic(int id, String title, String description) {
         super(id, title, description, Status.NEW);
-        this.subtasks = new HashSet<>();
+        this.subtaskIds = new HashSet<>();
     }
+
+    /*
+     Очень сильно туплю и не понимаю, если мы храним в этом объекте только Айдишники сабтасок,
+     есть какой-то способ получить информацию о самих сабтасках из этого объекта?
+     Они ведь находятся в taskManager'е и мне значит чтобы их передать сюда, нужно либо прокинуть сюда целиком
+     taskManager или целиком список всех сабтасок, или только ограниченный список сабтасок, или нет?
+     */
 
     public void recalculateStatus(ArrayList<Subtask> subtasks) {
 
@@ -44,11 +51,15 @@ public class Epic extends Task {
 
 
     public void setStatus(Status status) {
-        // Статус будет меняться в зависимости от Статуса Сабтасок.
+        // Изменение статуса напрямую запрещено. Статус будет меняться в зависимости от Статуса Сабтасок.
+        /* То же самое здесь, если я уберу метод, то сетСтатус станет доступен из родителя
+        заколлить recalculate, я не могу, у меня тут нет списка сабтасок, только айдишники.
+         */
+
     }
 
-    public HashSet<Integer> getSubtasks() {
-        return subtasks;
+    public HashSet<Integer> getSubtaskIds() {
+        return subtaskIds;
     }
 
     @Override
@@ -58,7 +69,7 @@ public class Epic extends Task {
                 ", title='" + super.getTitle() + '\'' +
                 ", description='" + super.getDescription() + '\'' +
                 ", status=" + super.getStatus() +
-                ", subtasks=" + getSubtasks() +
+                ", subtasks=" + getSubtaskIds() +
                 '}';
     }
 }
