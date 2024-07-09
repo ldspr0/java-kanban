@@ -14,12 +14,6 @@ public class Epic extends Task {
     }
 
     public void recalculateStatus(ArrayList<Subtask> subtasks) {
-        /*
-        По поводу передачи айди эпика именно сюда, зачем? это и так метод ЭПИКА у кого мы пересчитываем,
-        Он и так знает что он за эпик.
-        Реализация бы сильно упростилась если бы в сабтасках были бы не айдишники, а сами сабтаски, но увы, причины
-        описаны в таск менеджере.
-         */
 
         if (subtasks.isEmpty()) {
             super.setStatus(Status.NEW);
