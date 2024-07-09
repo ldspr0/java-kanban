@@ -1,4 +1,4 @@
-package ru.yandex.taskmanager.tests;
+package ru.yandex.taskmanager.test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +7,7 @@ import ru.yandex.taskmanager.enums.Status;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
+import ru.yandex.taskmanager.service.InMemoryTaskManager;
 import ru.yandex.taskmanager.service.TaskManager;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class TaskManagerTest {
-    private final TaskManager taskManager = new TaskManager();
+    private final TaskManager taskManager = new InMemoryTaskManager();
     private final ArrayList<Integer> taskIds = new ArrayList<>();
     private final ArrayList<Integer> subtaskIds = new ArrayList<>();
     private final ArrayList<Integer> epicIds = new ArrayList<>();
