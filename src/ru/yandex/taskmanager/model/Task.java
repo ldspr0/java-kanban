@@ -44,6 +44,15 @@ public class Task {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // проверяем адреса объектов
+        if (obj == null) return false; // проверяем ссылку на null
+        if (this.getClass() != obj.getClass()) return false; // сравниваем классы
+        Task otherTask = (Task) obj; // открываем доступ к полям другого объекта
+        return this.getId() == otherTask.getId();
+    }
+
+    @Override
     public String toString() {
         return "Task{" +
                 "id=" + getId() +

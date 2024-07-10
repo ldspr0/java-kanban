@@ -7,15 +7,15 @@ import ru.yandex.taskmanager.enums.Status;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
-import ru.yandex.taskmanager.service.InMemoryTaskManager;
 import ru.yandex.taskmanager.service.TaskManager;
+import ru.yandex.taskmanager.utility.Managers;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 
-public class TaskManagerTest {
-    private final TaskManager taskManager = new InMemoryTaskManager();
+public class FunctionalityTests {
+    private final TaskManager taskManager = Managers.getDefault();
     private final ArrayList<Integer> taskIds = new ArrayList<>();
     private final ArrayList<Integer> subtaskIds = new ArrayList<>();
     private final ArrayList<Integer> epicIds = new ArrayList<>();
@@ -39,7 +39,7 @@ public class TaskManagerTest {
 
         int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
         epicIds.add(epicId2);
-        String title = "Подзадача " + epicId1 + "-" + 0;
+        String title = "Подзадача " + epicId2 + "-" + 0;
         int subtaskId = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
         subtaskIds.add(subtaskId);
 
@@ -154,7 +154,7 @@ public class TaskManagerTest {
 
         for (int id : epicIds) {
             Epic epic = taskManager.getEpic(id);
-            switch (epic.getSubtasks().size()) {
+            switch (epic.getSubtaskIds().size()) {
                 case 1 -> epicWithOneSubtask = epic;
                 case 4 -> epicWithManySubtasks = epic;
             }
@@ -163,13 +163,13 @@ public class TaskManagerTest {
         // epic with 1 subtask
         Assertions.assertNotNull(epicWithOneSubtask);
         Assertions.assertEquals(Status.NEW, epicWithOneSubtask.getStatus());
-        for (Integer subtaskId : epicWithOneSubtask.getSubtasks()) {
+        for (Integer subtaskId : epicWithOneSubtask.getSubtaskIds()) {
             Subtask subtask = taskManager.getSubtask(subtaskId);
             subtask.setStatus(Status.DONE);
             taskManager.updateRecord(subtask);
         }
         Assertions.assertEquals(Status.DONE, epicWithOneSubtask.getStatus());
-        for (Integer subtaskId : epicWithOneSubtask.getSubtasks()) {
+        for (Integer subtaskId : epicWithOneSubtask.getSubtaskIds()) {
             taskManager.deleteSubtask(subtaskId);
         }
         Assertions.assertEquals(Status.NEW, epicWithOneSubtask.getStatus());
@@ -177,7 +177,9 @@ public class TaskManagerTest {
         // epic with 2+ subtasks
         Assertions.assertNotNull(epicWithManySubtasks);
         Assertions.assertEquals(Status.NEW, epicWithManySubtasks.getStatus());
-        for (Integer subtaskId : epicWithManySubtasks.getSubtasks()) {
+
+        // make 1 subtask done
+        for (Integer subtaskId : epicWithManySubtasks.getSubtaskIds()) {
             Subtask subtask = taskManager.getSubtask(subtaskId);
             subtask.setStatus(Status.DONE);
             taskManager.updateRecord(subtask);
@@ -185,14 +187,28 @@ public class TaskManagerTest {
         }
         Assertions.assertEquals(Status.IN_PROGRESS, epicWithManySubtasks.getStatus());
 
-        for (Integer subtaskId : epicWithManySubtasks.getSubtasks()) {
+        // delete "done" subtask,
+        int subtaskIdToDelete = -1;
+        for (Integer subtaskId : epicWithManySubtasks.getSubtaskIds()) {
+            Subtask subtask = taskManager.getSubtask(subtaskId);
+            if (subtask.getStatus() == Status.DONE) {
+                subtaskIdToDelete = subtaskId;
+                break;
+            }
+        }
+        taskManager.deleteSubtask(subtaskIdToDelete);
+        Assertions.assertEquals(Status.NEW, epicWithManySubtasks.getStatus());
+
+        // make all subtasks done
+        for (Integer subtaskId : epicWithManySubtasks.getSubtaskIds()) {
             Subtask subtask = taskManager.getSubtask(subtaskId);
             subtask.setStatus(Status.DONE);
             taskManager.updateRecord(subtask);
         }
         Assertions.assertEquals(Status.DONE, epicWithManySubtasks.getStatus());
 
-        HashSet<Integer> subtaskIds = new HashSet<>(epicWithManySubtasks.getSubtasks());
+        // delete all subtasks
+        HashSet<Integer> subtaskIds = new HashSet<>(epicWithManySubtasks.getSubtaskIds());
         for (int subtaskId : subtaskIds) {
             taskManager.deleteSubtask(subtaskId);
         }
@@ -229,7 +245,7 @@ public class TaskManagerTest {
 
         for (int id : epicIds) {
             Epic epic = taskManager.getEpic(id);
-            if (epic.getSubtasks().size() > 1) {
+            if (epic.getSubtaskIds().size() > 1) {
                 epicWithManySubtasks = epic;
                 break;
             }
@@ -237,7 +253,7 @@ public class TaskManagerTest {
 
         Assertions.assertNotNull(epicWithManySubtasks);
         Assertions.assertNotNull(taskManager.getEpic(epicWithManySubtasks.getId()));
-        HashSet<Integer> subtaskIds = epicWithManySubtasks.getSubtasks();
+        HashSet<Integer> subtaskIds = epicWithManySubtasks.getSubtaskIds();
         Assertions.assertFalse(subtaskIds.isEmpty());
         for (int id : subtaskIds) {
             Assertions.assertNotNull(taskManager.getSubtask(id));
@@ -261,7 +277,7 @@ public class TaskManagerTest {
     }
 
     @Test
-    public void noErrorTrownIfIncorrectIdUsedForRemoval() {
+    public void noErrorThrownIfIncorrectIdUsedForRemoval() {
         int id = taskIds.get(random.nextInt(taskIds.size()));
         int newId = id + 100;
         taskManager.deleteSubtask(newId);
@@ -283,7 +299,7 @@ public class TaskManagerTest {
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
 
         for (int id : epicIds) {
-            Assertions.assertTrue(taskManager.getEpic(id).getSubtasks().isEmpty());
+            Assertions.assertTrue(taskManager.getEpic(id).getSubtaskIds().isEmpty());
         }
     }
 

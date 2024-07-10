@@ -42,19 +42,25 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateRecord(Task task) {
-        tasks.put(task.getId(), task);
+        if (tasks.containsKey(task.getId())){
+            tasks.put(task.getId(), task);
+        }
     }
 
     @Override
     public void updateRecord(Epic epic) {
-        epics.put(epic.getId(), epic);
+        if (epics.containsKey(epic.getId())) {
+            epics.put(epic.getId(), epic);
+        }
     }
 
     @Override
     public void updateRecord(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
-        Epic parentEpic = getEpic(subtask.getEpicId());
-        parentEpic.recalculateStatus(getSubtasksByEpicId(subtask.getEpicId()));
+        if (subtasks.containsKey(subtask.getId())) {
+            subtasks.put(subtask.getId(), subtask);
+            Epic parentEpic = getEpic(subtask.getEpicId());
+            parentEpic.recalculateStatus(getSubtasksByEpicId(subtask.getEpicId()));
+        }
     }
 
     // Как лучше? Как написано или как в комменте? Я вижу что как в комменте короче, но как будто бы, тогда ему
