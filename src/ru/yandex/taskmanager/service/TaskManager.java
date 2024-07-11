@@ -4,7 +4,7 @@ import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
     int createRecord(Task task);
@@ -25,7 +25,7 @@ public interface TaskManager {
 
     Epic getEpic(int id);
 
-    ArrayList<Subtask> getSubtasksByEpicId(int epicId);
+    List<Subtask> getSubtasksByEpicId(int epicId);
 
     void deleteEpic(int id);
 
@@ -39,11 +39,11 @@ public interface TaskManager {
 
     void clearSubtasks();
 
-    ArrayList<Task> getAllTasks();
+    List<Task> getAllTasks();
 
-    ArrayList<Epic> getAllEpics();
+    List<Epic> getAllEpics();
 
-    ArrayList<Subtask> getAllSubtasks();
+    List<Subtask> getAllSubtasks();
 
-    ArrayList<Task> getHistory();
+    List<Task> getHistory();
 }

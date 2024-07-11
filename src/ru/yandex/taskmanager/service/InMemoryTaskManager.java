@@ -9,6 +9,12 @@ import ru.yandex.taskmanager.utility.Managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/*
+    Перевел интерфейсы в из ArrayList в List, а в конкретной реализации (тут) оставил работу с ArrayList верно?
+    Хешмапа используется только в этом файле, поэтому переводить ее в мапу вроде быть тоже нет особо смысла?
+    или я что-то не так понимаю?
+ */
+
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
@@ -31,7 +37,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createRecord(Subtask subtask) {
-        Epic parentRecord = getEpic(subtask.getEpicId());
+        Epic parentRecord = epics.get(subtask.getEpicId());
         if (parentRecord != null) {
             subtasks.put(id, new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
             parentRecord.getSubtaskIds().add(id);
@@ -58,17 +64,11 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateRecord(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
             subtasks.put(subtask.getId(), subtask);
-            Epic parentEpic = getEpic(subtask.getEpicId());
+            Epic parentEpic = epics.get(subtask.getEpicId());
             parentEpic.recalculateStatus(getSubtasksByEpicId(subtask.getEpicId()));
         }
     }
 
-    // Как лучше? Как написано или как в комменте? Я вижу что как в комменте короче, но как будто бы, тогда ему
-    // придется 2 раза проходить по листу тасок, один раз для истории, один раз, чтобы вернуть значение.
-    /*
-        historyManager.add(tasks.get(id));
-        return tasks.get(id);
-     */
     @Override
     public Task getTask(int id) {
         Task result = tasks.get(id);
@@ -94,8 +94,8 @@ public class InMemoryTaskManager implements TaskManager {
     public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
         ArrayList<Subtask> result = new ArrayList<>();
 
-        for (Integer subtaskId : getEpic(epicId).getSubtaskIds()) {
-            result.add(getSubtask(subtaskId));
+        for (Integer subtaskId : epics.get(epicId).getSubtaskIds()) {
+            result.add(subtasks.get(subtaskId));
         }
         return result;
     }
@@ -174,7 +174,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Task> getHistory() {
-        return historyManager.getHistory();
+        return new ArrayList<>(historyManager.getHistory());
     }
 }
 

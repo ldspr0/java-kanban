@@ -27,22 +27,21 @@ public class Main {
 
         int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
         String title = "Подзадача " + epicId2 + "-" + 0;
-        taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
+        int subtaskId1 = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
 
         taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
+
+        // Making history!!!!
+        taskManager.getEpic(55555);
+        taskManager.getEpic(epicId1);
+        taskManager.getEpic(epicId1);
+        taskManager.getEpic(epicId2);
+        taskManager.getSubtask(subtaskId1);
         // -----
 
         printAllTasks(taskManager);
 
     }
-
-    /*
-    Мои сомнения:
-        1. Каждый раз при создании Сабтаска в историю сохраняется просмотр Эпика (для добавления в него информации)
-        2. getSubtasksByEpicId тоже наваливает в историю и по каждому эпику и по каждому сабтаску
-     Как решение для первых 2 я вижу, это сделать отдельный метод для системных гетов и отдельный для пользовательских
-        3. В данной реализации getAllTask(Subtask/Epic) не сохраняется в историю просмотров, нужно ли?
-     */
 
     private static void printAllTasks(TaskManager manager) {
         System.out.println("\n\tЗадачи:");
