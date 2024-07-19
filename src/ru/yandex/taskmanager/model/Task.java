@@ -3,6 +3,7 @@ package ru.yandex.taskmanager.model;
 import ru.yandex.taskmanager.enums.Status;
 
 public class Task {
+    //TODO: Подумать, возможно сделать из этого абстракцию
     private int id;
     private String title;
     private String description;

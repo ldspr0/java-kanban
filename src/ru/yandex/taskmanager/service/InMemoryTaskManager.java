@@ -9,12 +9,6 @@ import ru.yandex.taskmanager.utility.Managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/*
-    Перевел интерфейсы в из ArrayList в List, а в конкретной реализации (тут) оставил работу с ArrayList верно?
-    Хешмапа используется только в этом файле, поэтому переводить ее в мапу вроде быть тоже нет особо смысла?
-    или я что-то не так понимаю?
- */
-
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
