@@ -45,7 +45,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         ArrayList<Task> result = new ArrayList<>();
         Node node = head;
 
-        while(node != null) {
+        while (node != null) {
             result.add(node.getEntity());
             node = node.getNext();
         }
@@ -55,15 +55,18 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        viewHistoryMap.remove(id);
         removeNode(viewHistoryMap.get(id));
+        viewHistoryMap.remove(id);
     }
 
     private void removeNode(Node node) {
+        if (node == null) {
+            return;
+        }
         if (head == tail) {
             // only if you need to "rewrite" first item
-             head = null;
-             tail = null;
+            head = null;
+            tail = null;
 
         } else if (node.getPrev() == null && node.getNext() != null) {
             head = node.getNext();
