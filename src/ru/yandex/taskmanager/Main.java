@@ -34,11 +34,23 @@ public class Main {
         // Making history!!!!
         taskManager.getEpic(55555);
         taskManager.getEpic(epicId1);
+        taskManager.getTask(0);
         taskManager.getEpic(epicId1);
         taskManager.getEpic(epicId2);
+        taskManager.getTask(1);
         taskManager.getEpic(epicId1);
         taskManager.getSubtask(subtaskId1);
+        taskManager.getTask(3);
         taskManager.getEpic(epicId1);
+        taskManager.getSubtask(7);
+        taskManager.getSubtask(8);
+
+
+        taskManager.deleteTask(1);
+        taskManager.deleteEpic(epicId2);
+        taskManager.deleteSubtask(7);
+
+
         // -----
 
         printAllTasks(taskManager);

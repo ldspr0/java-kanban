@@ -55,11 +55,14 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        viewHistoryMap.remove(id);
         removeNode(viewHistoryMap.get(id));
+        viewHistoryMap.remove(id);
     }
 
     private void removeNode(Node node) {
+        if (node == null) {
+            return;
+        }
         if (head == tail) {
             // only if you need to "rewrite" first item
              head = null;
