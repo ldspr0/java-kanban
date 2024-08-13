@@ -2,7 +2,11 @@ package ru.yandex.taskmanager.historyTracker;
 
 import ru.yandex.taskmanager.model.Task;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
 
 public class InMemoryHistoryManager implements HistoryManager {
 
@@ -15,36 +19,29 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (task == null) {
             return;
         }
+
         if (viewHistoryMap.containsKey(task.getId())) {
             removeNode(viewHistoryMap.get(task.getId()));
         }
-        linkLast(task);
 
-        /*
-        V В ключах будут храниться id задач, а в значениях Node — узлы связного списка.
-        V Она будет заполняться по мере добавления новых задач.
-        V Напишите реализацию метода add(Task task).
-        V Теперь с помощью HashMap и метода удаления removeNode метод add(Task task) будет быстро удалять задачу из списка, если она там есть,
-        V а затем вставлять её в конец двусвязного списка.
-        V После добавления задачи не забудьте обновить значение узла в HashMap.
-         */
+        linkLast(task);
     }
 
     public void linkLast(Task task) {
-        // linkLast будет добавлять задачу в конец этого списка,
         Node newNode = new Node(task, null, tail);
+
         if (tail == null) {
             head = newNode;
-            tail = newNode;
         } else {
             tail.setNext(newNode);
         }
+
+        tail = newNode;
 
         viewHistoryMap.put(task.getId(), newNode);
     }
 
     public ArrayList<Task> getTasks() {
-        // getTasks — собирать все задачи из него в обычный ArrayList.
         ArrayList<Task> result = new ArrayList<>();
         Node node = head;
 
@@ -63,26 +60,36 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void removeNode(Node node) {
-        if (node.getPrev() == null) {
+        if (head == tail) {
+            // only if you need to "rewrite" first item
+             head = null;
+             tail = null;
+
+        } else if (node.getPrev() == null && node.getNext() != null) {
             head = node.getNext();
             head.setPrev(null);
-        } else if (node.getNext() == null) {
+
+        } else if (node.getNext() == null && node.getPrev() != null) {
             tail = node.getPrev();
             tail.setNext(null);
+
         } else {
             // somewhere in the middle
             Node nextNode = node.getNext();
             Node prevNode = node.getPrev();
-            nextNode.setPrev(prevNode);
-            prevNode.setNext(nextNode);
+
+            if (nextNode != null) {
+                nextNode.setPrev(prevNode);
+            }
+
+            if (prevNode != null) {
+                prevNode.setNext(nextNode);
+            }
         }
     }
 
     @Override
     public List<Task> getHistory() {
-        /*
-        Реализация метода getHistory должна перекладывать задачи из связного списка в ArrayList для формирования ответа.
-         */
         return List.copyOf(getTasks());
     }
 
@@ -121,14 +128,19 @@ public class InMemoryHistoryManager implements HistoryManager {
         public String toString() {
             return super.toString();
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Node node = (Node) o;
+            return entity.getId() == node.entity.getId();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(entity.getId());
+        }
     }
 
 }
-
-
-// TODO:
-/*
-Сделать историю посещений неограниченной по размеру.
-Избавиться от повторных просмотров в истории. Если какую-либо задачу посещали несколько раз,
-то в истории должен остаться только её последний просмотр. Предыдущий должен быть удалён.
- */

@@ -32,11 +32,13 @@ public class Main {
         taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
 
         // Making history!!!!
-//        taskManager.getEpic(55555);
+        taskManager.getEpic(55555);
         taskManager.getEpic(epicId1);
         taskManager.getEpic(epicId1);
         taskManager.getEpic(epicId2);
+        taskManager.getEpic(epicId1);
         taskManager.getSubtask(subtaskId1);
+        taskManager.getEpic(epicId1);
         // -----
 
         printAllTasks(taskManager);

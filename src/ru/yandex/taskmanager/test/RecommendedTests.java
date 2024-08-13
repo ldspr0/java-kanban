@@ -95,11 +95,49 @@ public class RecommendedTests {
         Task updatedTask = new Task(id, "Новая Задача 555", "description", Status.IN_PROGRESS);
         taskManager.updateRecord(updatedTask);
 
-        updatedTask = taskManager.getTask(id);
-        lastTaskInHistory = taskManager.getHistory().getLast();
-        Task firstTaskInHistory = taskManager.getHistory().getFirst();
+        updatedTask = taskManager.getTask(updatedTask.getId());
 
+        Task firstTaskInHistory = taskManager.getHistory().getFirst();
+        lastTaskInHistory = taskManager.getHistory().getLast();
+
+        Assertions.assertEquals(updatedTask.getTitle(), lastTaskInHistory.getTitle());
+    }
+
+    @Test
+    public void isHistoryManagerHasCorrectTasksOrder() {
+
+        int id = taskManager.createRecord(new Task(0, "Задача " + 1, "description", Status.NEW));
+        Task createdTask = taskManager.getTask(id);
+        Task firstTaskInHistory = taskManager.getHistory().getFirst();
+        Task lastTaskInHistory = taskManager.getHistory().getLast();
+        Assertions.assertEquals(createdTask, lastTaskInHistory);
+
+        int id2 = taskManager.createRecord(new Task(1, "Задача " + 2, "description", Status.NEW));
+        Task createdTask2 = taskManager.getTask(id2);
+        int id3 = taskManager.createRecord(new Task(2, "Задача " + 3, "description", Status.NEW));
+        Task createdTask3 = taskManager.getTask(id3);
+
+        firstTaskInHistory = taskManager.getHistory().getFirst();
+        lastTaskInHistory = taskManager.getHistory().getLast();
         Assertions.assertEquals(createdTask.getTitle(), firstTaskInHistory.getTitle());
+        Assertions.assertEquals(createdTask3.getTitle(), lastTaskInHistory.getTitle());
+
+        Task updatedTask = new Task(id, "Новая Задача 555", "description", Status.IN_PROGRESS);
+        taskManager.updateRecord(updatedTask);
+        updatedTask = taskManager.getTask(updatedTask.getId());
+
+        firstTaskInHistory = taskManager.getHistory().getFirst();
+        lastTaskInHistory = taskManager.getHistory().getLast();
+        Assertions.assertEquals(createdTask2.getTitle(), firstTaskInHistory.getTitle());
+        Assertions.assertEquals(updatedTask.getTitle(), lastTaskInHistory.getTitle());
+
+        updatedTask = new Task(id, "Новая Задача 777", "description", Status.IN_PROGRESS);
+        taskManager.updateRecord(updatedTask);
+        updatedTask = taskManager.getTask(updatedTask.getId());
+
+        firstTaskInHistory = taskManager.getHistory().getFirst();
+        lastTaskInHistory = taskManager.getHistory().getLast();
+        Assertions.assertEquals(createdTask2.getTitle(), firstTaskInHistory.getTitle());
         Assertions.assertEquals(updatedTask.getTitle(), lastTaskInHistory.getTitle());
     }
 }
