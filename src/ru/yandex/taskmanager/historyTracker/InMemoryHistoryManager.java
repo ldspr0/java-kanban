@@ -97,7 +97,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private class Node {
-        final private Task entity;
+        private final Task entity;
         private Node next;
         private Node prev;
 
