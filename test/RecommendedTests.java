@@ -1,6 +1,5 @@
-package ru.yandex.taskmanager.test;
-
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.taskmanager.enums.Status;
 import ru.yandex.taskmanager.model.Epic;
@@ -10,12 +9,43 @@ import ru.yandex.taskmanager.service.InMemoryTaskManager;
 import ru.yandex.taskmanager.service.TaskManager;
 import ru.yandex.taskmanager.utility.Managers;
 
+import java.util.ArrayList;
+
 public class RecommendedTests {
     private final TaskManager taskManager = Managers.getDefault();
+    private final ArrayList<Integer> taskIds = new ArrayList<>();
+    private final ArrayList<Integer> subtaskIds = new ArrayList<>();
+    private final ArrayList<Integer> epicIds = new ArrayList<>();
+
+    @BeforeEach
+    public void beforeEach() {
+        for (int i = 0; i < 5; i++) {
+            int taskId = taskManager.createRecord(new Task(i, "Задача " + i, "description", Status.NEW));
+            taskIds.add(taskId);
+        }
+
+        int epicId1 = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
+        epicIds.add(epicId1);
+        for (int i = 0; i < 4; i++) {
+            String title = "Подзадача " + epicId1 + "-" + i;
+            int subtaskId = taskManager.createRecord(new Subtask(i, title, "description", Status.NEW, epicId1));
+            subtaskIds.add(subtaskId);
+        }
+
+        int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
+        epicIds.add(epicId2);
+        String title = "Подзадача " + epicId2 + "-" + 0;
+        int subtaskId = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
+        subtaskIds.add(subtaskId);
+
+        int epicId3 = taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
+        epicIds.add(epicId3);
+
+    }
 
     @Test
     public void differentTasksAreEqualIfIdIsEqual() {
-        int id = taskManager.createRecord(new Task(0, "Задача " + 1, "description", Status.NEW));
+        int id = taskIds.getFirst();
         Task createdTask = taskManager.getTask(id);
 
         Task updatedTask = new Task(id, "Новая Задача 555", "description", Status.IN_PROGRESS);
@@ -28,7 +58,7 @@ public class RecommendedTests {
 
     @Test
     public void differentEpicsAreEqualIfIdIsEqual() {
-        int epicId = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
+        int epicId = epicIds.getFirst();
         Epic createdEpic = taskManager.getEpic(epicId);
 
         Epic updatedEpic = new Epic(epicId, "Новая Задача 555", "description");
@@ -41,9 +71,8 @@ public class RecommendedTests {
 
     @Test
     public void differentSubtasksAreEqualIfIdIsEqual() {
-
-        int epicId = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
-        int subtaskId = taskManager.createRecord(new Subtask(0, "Подзадача 1", "description", Status.NEW, epicId));
+        int epicId = epicIds.getFirst();
+        int subtaskId = subtaskIds.getFirst();
         Subtask createdSubtask = taskManager.getSubtask(subtaskId);
 
         Subtask updatedSubtask = new Subtask(subtaskId, "Новая Задача 555", "description", Status.IN_PROGRESS, epicId);
@@ -56,8 +85,8 @@ public class RecommendedTests {
 
     @Test
     public void isImpossibleToAddEpicAsSubtask() {
-        int epicId = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
-        int subtaskId = taskManager.createRecord(new Subtask(epicId, "Подзадача 1", "description", Status.NEW, epicId));
+        int epicId = epicIds.getFirst();
+        int subtaskId = subtaskIds.getFirst();
         Subtask updatedSubtask = new Subtask(epicId, "Новая Задача 555", "description", Status.IN_PROGRESS, epicId);
         taskManager.updateRecord(updatedSubtask);
 
@@ -68,8 +97,8 @@ public class RecommendedTests {
 
     @Test
     public void isImpossibleToUseSubtaskAsEpic() {
-        int epicId = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
-        int subtaskId = taskManager.createRecord(new Subtask(0, "Подзадача 1", "description", Status.NEW, epicId));
+        int epicId = epicIds.getFirst();
+        int subtaskId = subtaskIds.getFirst();
         int subtaskId2 = taskManager.createRecord(new Subtask(0, "Подзадача 2", "description", Status.NEW, subtaskId));
 
         Assertions.assertNotNull(taskManager.getEpic(epicId));
@@ -86,7 +115,6 @@ public class RecommendedTests {
 
     @Test
     public void isHistoryManagerHasCorrectVersionOfTask() {
-
         int id = taskManager.createRecord(new Task(0, "Задача " + 1, "description", Status.NEW));
         Task createdTask = taskManager.getTask(id);
         Task lastTaskInHistory = taskManager.getHistory().getLast();
@@ -105,16 +133,16 @@ public class RecommendedTests {
 
     @Test
     public void isHistoryManagerHasCorrectTasksOrder() {
-
-        int id = taskManager.createRecord(new Task(0, "Задача " + 1, "description", Status.NEW));
+        int id = taskIds.getFirst();
         Task createdTask = taskManager.getTask(id);
         Task firstTaskInHistory = taskManager.getHistory().getFirst();
         Task lastTaskInHistory = taskManager.getHistory().getLast();
         Assertions.assertEquals(createdTask, lastTaskInHistory);
 
-        int id2 = taskManager.createRecord(new Task(1, "Задача " + 2, "description", Status.NEW));
+        int id2 = taskIds.get(1);
+        int id3 = taskIds.get(2);
+
         Task createdTask2 = taskManager.getTask(id2);
-        int id3 = taskManager.createRecord(new Task(2, "Задача " + 3, "description", Status.NEW));
         Task createdTask3 = taskManager.getTask(id3);
 
         firstTaskInHistory = taskManager.getHistory().getFirst();

@@ -1,11 +1,11 @@
 package ru.yandex.taskmanager.historyTracker;
 
 import ru.yandex.taskmanager.model.Task;
+import ru.yandex.taskmanager.utility.Node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 
 public class InMemoryHistoryManager implements HistoryManager {
@@ -96,54 +96,5 @@ public class InMemoryHistoryManager implements HistoryManager {
         return List.copyOf(getTasks());
     }
 
-    private class Node {
-        private final Task entity;
-        private Node next;
-        private Node prev;
-
-        Node(Task entity, Node next, Node prev) {
-            this.entity = entity;
-            this.next = next;
-            this.prev = prev;
-        }
-
-        public Task getEntity() {
-            return entity;
-        }
-
-        public Node getNext() {
-            return next;
-        }
-
-        public void setNext(Node next) {
-            this.next = next;
-        }
-
-        public Node getPrev() {
-            return prev;
-        }
-
-        public void setPrev(Node prev) {
-            this.prev = prev;
-        }
-
-        @Override
-        public String toString() {
-            return super.toString();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Node node = (Node) o;
-            return entity.getId() == node.entity.getId();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(entity.getId());
-        }
-    }
 
 }
