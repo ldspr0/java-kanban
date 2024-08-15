@@ -42,7 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateRecord(Task task) {
-        if (tasks.containsKey(task.getId())){
+        if (tasks.containsKey(task.getId())) {
             tasks.put(task.getId(), task);
         }
     }
@@ -96,8 +96,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpic(int id) {
-        Epic epic = getEpic(id);
+        Epic epic = epics.get(id);
         if (epic != null) {
+            historyManager.remove(id);
             epics.remove(id);
             for (Integer eachId : epic.getSubtaskIds()) {
                 deleteSubtask(eachId);
@@ -107,19 +108,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int id) {
+        historyManager.remove(id);
         tasks.remove(id);
     }
 
     @Override
     public void deleteSubtask(int id) {
 
-        Subtask subtask = getSubtask(id);
+        Subtask subtask = subtasks.get(id);
         if (subtask == null) {
             return;
         }
         // Это проверка для более "быстрого" удаления (случается только при удалении Эпика)
-        Epic epic = getEpic(subtask.getEpicId());
+        Epic epic = epics.get(subtask.getEpicId());
         if (epic == null) {
+            historyManager.remove(id);
             subtasks.remove(id);
             return;
         }
@@ -128,6 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
         // Пересчитать статус основываясь на внутреннем листе
         epic.recalculateStatus(getSubtasksByEpicId(epic.getId()));
         // Удалить из внешнего листа сабтасков
+        historyManager.remove(id);
         subtasks.remove(id);
     }
 
