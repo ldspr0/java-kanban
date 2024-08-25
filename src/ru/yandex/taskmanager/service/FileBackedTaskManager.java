@@ -111,7 +111,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 String line = fileReader.readLine();
 
                 switch (fromString(line)) {
-                    case Epic e -> {int newEpicId = super.createRecord(e); epicIdToNewIdAfterLoad.put(e.getId(), newEpicId);}
+                    case Epic e -> {
+                        int newEpicId = super.createRecord(e);
+                        epicIdToNewIdAfterLoad.put(e.getId(), newEpicId);
+                    }
                     case Subtask s -> super.createRecord(s);
                     case Task t -> super.createRecord(t);
                     case null -> {
