@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Поехали!");
-        //TaskManager taskManager = Managers.getDefault(); // old one
+        //TaskManager taskManager = Managers.getDefault(); // Старый
         TaskManager taskManager = Managers.getManager("FileManager");
 
 

@@ -8,10 +8,12 @@ import ru.yandex.taskmanager.model.Task;
 import ru.yandex.taskmanager.utility.ManagerSaveException;
 
 import java.io.*;
+import java.util.HashMap;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private static final String DEFAULT_DATA_FILE = "data//test.csv";
     private static File dataFile;
+    private static HashMap<Integer, Integer> epicIdToNewIdAfterLoad = new HashMap<>();
 
     public FileBackedTaskManager(String[] filePath) {
         dataFile = new File(DEFAULT_DATA_FILE);
@@ -84,11 +86,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         int id = fieldValues[0].isBlank() ? -1 : Integer.parseInt(fieldValues[0]);
+
         TaskType type = TaskType.valueOf(fieldValues[1]);
         String title = fieldValues[2];
         Status status = Status.valueOf(fieldValues[3]);
         int epicId = fieldValues[4].isBlank() ? -1 : Integer.parseInt(fieldValues[4]);
         String description = fieldValues[5];
+        if (type == TaskType.SUBTASK && epicIdToNewIdAfterLoad.get(epicId) != null) {
+            epicId = epicIdToNewIdAfterLoad.get(epicId);
+        }
 
         return switch (type) {
             case TaskType.TASK -> (T) new Task(id, title, description, status);
@@ -104,7 +110,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 String line = fileReader.readLine();
 
                 switch (fromString(line)) {
-                    case Epic e -> super.createRecord(e);
+                    case Epic e -> {int newEpicId = super.createRecord(e); epicIdToNewIdAfterLoad.put(e.getId(), newEpicId);}
                     case Subtask s -> super.createRecord(s);
                     case Task t -> super.createRecord(t);
                     case null -> {
