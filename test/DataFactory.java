@@ -36,7 +36,7 @@ public class DataFactory {
         ArrayList<Integer> subtaskIds = new ArrayList<>();
         int epicIdMoreThanOneSub = -1;
         for (int i = 0; i < numberOfEntities; i++) {
-            int epicId = -1;
+            int epicId;
             if (i < 2) {
                 // гарантируем 1 эпик с 1 сабтаской
                 epicId = epicIds.removeFirst();

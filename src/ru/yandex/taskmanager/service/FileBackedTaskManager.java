@@ -12,8 +12,9 @@ import java.util.HashMap;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private static final String DEFAULT_DATA_FILE = "data//test.csv";
+    private static final HashMap<Integer, Integer> epicIdToNewIdAfterLoad = new HashMap<>();
     private static File dataFile;
-    private static HashMap<Integer, Integer> epicIdToNewIdAfterLoad = new HashMap<>();
+
 
     public FileBackedTaskManager(String[] filePath) {
         dataFile = new File(DEFAULT_DATA_FILE);
@@ -105,7 +106,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void loadFromFile(File file) {
 
-        try (BufferedReader fileReader = new BufferedReader(new FileReader(file));) {
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             while (fileReader.ready()) {
                 String line = fileReader.readLine();
 

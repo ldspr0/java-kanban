@@ -21,7 +21,6 @@ public class FileBackedTaskManagerTests {
     private final ArrayList<Integer> taskIds = new ArrayList<>();
     private final ArrayList<Integer> subtaskIds = new ArrayList<>();
     private final ArrayList<Integer> epicIds = new ArrayList<>();
-    private final Random random = new Random();
 
     Path path1;
     File file1;
