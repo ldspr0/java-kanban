@@ -13,37 +13,23 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class FunctionalityTests {
+    private final int NUMBER_OF_TASKS = 10;
+    private final int NUMBER_OF_EPICS = 10;
+    private final int NUMBER_OF_SUBTASKS = 10;
+
     private final TaskManager taskManager = Managers.getDefault();
     private final ArrayList<Integer> taskIds = new ArrayList<>();
     private final ArrayList<Integer> subtaskIds = new ArrayList<>();
     private final ArrayList<Integer> epicIds = new ArrayList<>();
     private final Random random = new Random();
 
+
+
     @BeforeEach
     public void beforeEach() {
-
-        for (int i = 0; i < 5; i++) {
-            int taskId = taskManager.createRecord(new Task(i, "Задача " + i, "description", Status.NEW));
-            taskIds.add(taskId);
-        }
-
-        int epicId1 = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
-        epicIds.add(epicId1);
-        for (int i = 0; i < 4; i++) {
-            String title = "Подзадача " + epicId1 + "-" + i;
-            int subtaskId = taskManager.createRecord(new Subtask(i, title, "description", Status.NEW, epicId1));
-            subtaskIds.add(subtaskId);
-        }
-
-        int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
-        epicIds.add(epicId2);
-        String title = "Подзадача " + epicId2 + "-" + 0;
-        int subtaskId = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
-        subtaskIds.add(subtaskId);
-
-        int epicId3 = taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
-        epicIds.add(epicId3);
-
+        taskIds.addAll(DataFactory.createTasks(taskManager, NUMBER_OF_TASKS));
+        epicIds.addAll(DataFactory.createEpics(taskManager, NUMBER_OF_EPICS));
+        subtaskIds.addAll(DataFactory.createSubtasks(taskManager, NUMBER_OF_SUBTASKS, epicIds));
     }
 
     @Test
@@ -78,17 +64,17 @@ public class FunctionalityTests {
 
     @Test
     public void isPositiveToGetAllTasks() {
-        Assertions.assertEquals(5, taskManager.getAllTasks().size());
+        Assertions.assertEquals(NUMBER_OF_TASKS, taskManager.getAllTasks().size());
     }
 
     @Test
     public void isPositiveToGetAllSubtasks() {
-        Assertions.assertEquals(5, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(NUMBER_OF_SUBTASKS, taskManager.getAllSubtasks().size());
     }
 
     @Test
     public void isPositiveToGetAllEpics() {
-        Assertions.assertEquals(3, taskManager.getAllEpics().size());
+        Assertions.assertEquals(NUMBER_OF_EPICS, taskManager.getAllEpics().size());
     }
 
     @Test
@@ -152,9 +138,10 @@ public class FunctionalityTests {
 
         for (int id : epicIds) {
             Epic epic = taskManager.getEpic(id);
-            switch (epic.getSubtaskIds().size()) {
-                case 1 -> epicWithOneSubtask = epic;
-                case 4 -> epicWithManySubtasks = epic;
+            if (epic.getSubtaskIds().size() == 1) {
+                epicWithOneSubtask = epic;
+            } else if (epic.getSubtaskIds().size() > 1) {
+                epicWithManySubtasks = epic;
             }
         }
 
@@ -284,7 +271,7 @@ public class FunctionalityTests {
 
     @Test
     public void isPositiveToRemoveAllTasks() {
-        Assertions.assertEquals(5, taskManager.getAllTasks().size());
+        Assertions.assertEquals(NUMBER_OF_TASKS, taskManager.getAllTasks().size());
         taskManager.clearTasks();
         Assertions.assertTrue(taskManager.getAllTasks().isEmpty());
 
@@ -292,7 +279,7 @@ public class FunctionalityTests {
 
     @Test
     public void isPositiveToRemoveAllSubtasks() {
-        Assertions.assertEquals(5, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(NUMBER_OF_SUBTASKS, taskManager.getAllSubtasks().size());
         taskManager.clearSubtasks();
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
 
@@ -303,8 +290,8 @@ public class FunctionalityTests {
 
     @Test
     public void isPositiveToRemoveAllEpics() {
-        Assertions.assertEquals(3, taskManager.getAllEpics().size());
-        Assertions.assertEquals(5, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(NUMBER_OF_EPICS, taskManager.getAllEpics().size());
+        Assertions.assertEquals(NUMBER_OF_SUBTASKS, taskManager.getAllSubtasks().size());
         taskManager.clearEpics();
         Assertions.assertTrue(taskManager.getAllEpics().isEmpty());
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
