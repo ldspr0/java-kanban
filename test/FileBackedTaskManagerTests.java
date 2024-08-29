@@ -7,10 +7,12 @@ import ru.yandex.taskmanager.service.TaskManager;
 import ru.yandex.taskmanager.utility.Managers;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class FileBackedTaskManagerTests {
     private final int NUMBER_OF_TASKS = 10;
@@ -32,13 +34,14 @@ public class FileBackedTaskManagerTests {
 
         try {
             path1 = tempDir.resolve("testFile1.csv");
-            taskManager = Managers.getManager("FileManager", String.valueOf(path1));
             file1 = path1.toFile();
-        } catch (InvalidPathException e) {
+            Writer fileWriter = new FileWriter(file1);
+            fileWriter.close();
+            taskManager = Managers.getManager("FileManager", String.valueOf(path1));
+
+        } catch (InvalidPathException | IOException e) {
             System.err.println("error creating temporary test file in " + this.getClass().getSimpleName());
         }
-
-
     }
 
     @Test

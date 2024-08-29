@@ -15,7 +15,6 @@ public class Main {
         //TaskManager taskManager = Managers.getDefault(); // Старый
         TaskManager taskManager = Managers.getManager("FileManager");
 
-
         boolean createNewData = false;
 
         if (createNewData) {

@@ -6,6 +6,8 @@ import ru.yandex.taskmanager.service.FileBackedTaskManager;
 import ru.yandex.taskmanager.service.InMemoryTaskManager;
 import ru.yandex.taskmanager.service.TaskManager;
 
+import java.io.File;
+
 public class Managers {
 
     public static TaskManager getDefault() {
@@ -14,7 +16,12 @@ public class Managers {
 
     public static TaskManager getManager(String name, String... options) {
         if (!name.isBlank() && name.equals("FileManager")) {
-            return new FileBackedTaskManager(options);
+            File file = null;
+            if (options.length > 0) {
+                file = new File(options[0]);
+            }
+            return new FileBackedTaskManager(file);
+
         } else {
             return getDefault();
         }

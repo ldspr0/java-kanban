@@ -8,18 +8,26 @@ import ru.yandex.taskmanager.model.Task;
 import ru.yandex.taskmanager.utility.ManagerSaveException;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private static final String DEFAULT_DATA_FILE = "data//test.csv";
+    private static final String DEFAULT_DATA_FILE = "resources//data//test.csv";
     private static final HashMap<Integer, Integer> epicIdToNewIdAfterLoad = new HashMap<>();
     private static File dataFile;
 
-
-    public FileBackedTaskManager(String[] filePath) {
+    public FileBackedTaskManager(File file) {
         dataFile = new File(DEFAULT_DATA_FILE);
-        if (filePath.length != 0) {
-            dataFile = new File(filePath[0]);
+        if (file != null && file.isFile()) {
+            dataFile = file;
+        } else {
+            // создать папки для пути по умолчанию если нужно.
+            try {
+                Files.createDirectories(Paths.get(dataFile.getParent()));
+            } catch (IOException e) {
+                throw new ManagerSaveException(e.getMessage());
+            }
         }
         if (dataFile.exists()) {
             loadFromFile(dataFile);
@@ -35,7 +43,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
             if (dataFile.exists()) {
                 Writer fileWriter = new FileWriter(dataFile);
-                fileWriter.write("id,type,subject,status,epicId,description\n");
+                fileWriter.write("id,type,subject,status,description,epicId\n");
 
                 for (Task task : getAllTasks()) {
                     fileWriter.write(toString(task) + "\n");
@@ -70,7 +78,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             default -> type = TaskType.TASK.name();
         }
 
-        return task.getId() + "," + type + "," + task.getTitle() + "," + task.getStatus() + "," + epicId + "," + task.getDescription();
+        return task.getId() + "," + type + "," + task.getTitle() + "," + task.getStatus() + "," + task.getDescription() + "," + epicId;
 
     }
 
@@ -79,7 +87,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return null;
         }
 
-        String[] fieldValues = value.split(",");
+        String[] fieldValues = value.split(",", 6);
 
         // игнорурем первую линию с тайтлами
         if ("id".equals(fieldValues[0])) {
@@ -91,8 +99,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         TaskType type = TaskType.valueOf(fieldValues[1]);
         String title = fieldValues[2];
         Status status = Status.valueOf(fieldValues[3]);
-        int epicId = fieldValues[4].isBlank() ? -1 : Integer.parseInt(fieldValues[4]);
-        String description = fieldValues[5];
+        String description = fieldValues[4];
+        int epicId = fieldValues[5].isBlank() ? -1 : Integer.parseInt(fieldValues[5]);
         if (type == TaskType.SUBTASK && epicIdToNewIdAfterLoad.get(epicId) != null) {
             epicId = epicIdToNewIdAfterLoad.get(epicId);
         }
