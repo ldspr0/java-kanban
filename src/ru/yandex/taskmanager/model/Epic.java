@@ -47,7 +47,6 @@ public class Epic extends Task {
     }
 
     public void setStatus(Status status) {
-        //TODO: нужен рефактор для 6 спринта
     }
 
     @Override

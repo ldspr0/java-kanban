@@ -12,44 +12,47 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Поехали!");
-        TaskManager taskManager = Managers.getDefault();
+        //TaskManager taskManager = Managers.getDefault(); // Старый
+        TaskManager taskManager = Managers.getManager("FileManager");
 
-        // some data
-        for (int i = 0; i < 5; i++) {
-            taskManager.createRecord(new Task(i, "Задача " + i, "description", Status.NEW));
+        boolean createNewData = false;
+
+        if (createNewData) {
+            // some data
+            for (int i = 0; i < 5; i++) {
+                taskManager.createRecord(new Task(i, "Задача " + i, "description", Status.NEW));
+            }
+
+            int epicId1 = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
+            for (int i = 0; i < 4; i++) {
+                String title = "Подзадача " + epicId1 + "-" + i;
+                taskManager.createRecord(new Subtask(i, title, "description", Status.NEW, epicId1));
+            }
+
+            int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
+            String title = "Подзадача " + epicId2 + "-" + 0;
+            int subtaskId1 = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
+
+            taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
+
+            // Making history!!!!
+            taskManager.getEpic(55555);
+            taskManager.getEpic(epicId1);
+            taskManager.getTask(0);
+            taskManager.getEpic(epicId1);
+            taskManager.getEpic(epicId2);
+            taskManager.getTask(1);
+            taskManager.getEpic(epicId1);
+            taskManager.getSubtask(subtaskId1);
+            taskManager.getTask(3);
+            taskManager.getEpic(epicId1);
+            taskManager.getSubtask(7);
+            taskManager.getSubtask(8);
+
+            taskManager.deleteTask(1);
+            taskManager.deleteEpic(epicId2);
+            taskManager.deleteSubtask(7);
         }
-
-        int epicId1 = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
-        for (int i = 0; i < 4; i++) {
-            String title = "Подзадача " + epicId1 + "-" + i;
-            taskManager.createRecord(new Subtask(i, title, "description", Status.NEW, epicId1));
-        }
-
-        int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
-        String title = "Подзадача " + epicId2 + "-" + 0;
-        int subtaskId1 = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
-
-        taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
-
-        // Making history!!!!
-        taskManager.getEpic(55555);
-        taskManager.getEpic(epicId1);
-        taskManager.getTask(0);
-        taskManager.getEpic(epicId1);
-        taskManager.getEpic(epicId2);
-        taskManager.getTask(1);
-        taskManager.getEpic(epicId1);
-        taskManager.getSubtask(subtaskId1);
-        taskManager.getTask(3);
-        taskManager.getEpic(epicId1);
-        taskManager.getSubtask(7);
-        taskManager.getSubtask(8);
-
-
-        taskManager.deleteTask(1);
-        taskManager.deleteEpic(epicId2);
-        taskManager.deleteSubtask(7);
-
 
         // -----
 

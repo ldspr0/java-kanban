@@ -12,6 +12,10 @@ import ru.yandex.taskmanager.utility.Managers;
 import java.util.ArrayList;
 
 public class RecommendedTests {
+    private final int NUMBER_OF_TASKS = 10;
+    private final int NUMBER_OF_EPICS = 10;
+    private final int NUMBER_OF_SUBTASKS = 10;
+
     private final TaskManager taskManager = Managers.getDefault();
     private final ArrayList<Integer> taskIds = new ArrayList<>();
     private final ArrayList<Integer> subtaskIds = new ArrayList<>();
@@ -19,28 +23,9 @@ public class RecommendedTests {
 
     @BeforeEach
     public void beforeEach() {
-        for (int i = 0; i < 5; i++) {
-            int taskId = taskManager.createRecord(new Task(i, "Задача " + i, "description", Status.NEW));
-            taskIds.add(taskId);
-        }
-
-        int epicId1 = taskManager.createRecord(new Epic(0, "Эпик 1", "description"));
-        epicIds.add(epicId1);
-        for (int i = 0; i < 4; i++) {
-            String title = "Подзадача " + epicId1 + "-" + i;
-            int subtaskId = taskManager.createRecord(new Subtask(i, title, "description", Status.NEW, epicId1));
-            subtaskIds.add(subtaskId);
-        }
-
-        int epicId2 = taskManager.createRecord(new Epic(0, "Эпик 2", "description"));
-        epicIds.add(epicId2);
-        String title = "Подзадача " + epicId2 + "-" + 0;
-        int subtaskId = taskManager.createRecord(new Subtask(0, title, "description", Status.NEW, epicId2));
-        subtaskIds.add(subtaskId);
-
-        int epicId3 = taskManager.createRecord(new Epic(0, "Эпик 3", "description"));
-        epicIds.add(epicId3);
-
+        taskIds.addAll(DataFactory.createTasks(taskManager, NUMBER_OF_TASKS));
+        epicIds.addAll(DataFactory.createEpics(taskManager, NUMBER_OF_EPICS));
+        subtaskIds.addAll(DataFactory.createSubtasks(taskManager, NUMBER_OF_SUBTASKS, epicIds));
     }
 
     @Test
