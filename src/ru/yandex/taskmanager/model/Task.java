@@ -2,11 +2,17 @@ package ru.yandex.taskmanager.model;
 
 import ru.yandex.taskmanager.enums.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
     private int id;
     private String title;
     private String description;
     private Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
+
 
     public Task(int id, String title, String description, Status status) {
         this.id = id;
@@ -37,6 +43,26 @@ public class Task {
 
     public Status getStatus() {
         return status;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer minutes) {
+        this.duration = Duration.ofMinutes(minutes);
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return getStartTime() == null ? null : getDuration() == null ? null : getStartTime().plus(getDuration());
     }
 
     public void setStatus(Status status) {

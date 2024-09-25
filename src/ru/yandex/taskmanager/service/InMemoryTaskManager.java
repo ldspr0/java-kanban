@@ -1,13 +1,15 @@
 package ru.yandex.taskmanager.service;
 
+import ru.yandex.taskmanager.comparators.StartDateTaskComparator;
 import ru.yandex.taskmanager.historyTracker.HistoryManager;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
 import ru.yandex.taskmanager.utility.Managers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
@@ -16,10 +18,38 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private final Comparator dateComparator = new StartDateTaskComparator();
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(dateComparator);
+
+    private TreeSet<Task> getPrioritizedTasks() {
+        return this.prioritizedTasks;
+    }
+
+    private boolean isTimePeriodAlreadyScheduled(LocalDateTime dateTime, Duration duration) {
+        if (dateTime == null || duration == null) {
+            return true;
+        }
+        for (Task prioritizedTask : this.prioritizedTasks) {
+            if (prioritizedTask.getEndTime().isAfter(dateTime)
+                    && !prioritizedTask.getStartTime().isAfter(dateTime)
+                    && !dateTime.plus(duration).isAfter(prioritizedTask.getStartTime())
+            ) {
+               return true;
+            }
+            if (prioritizedTask.getStartTime().isAfter(dateTime.plus(duration))) {
+                break; // дальше искать уже не нужно
+            }
+        }
+        return false;
+    }
 
     @Override
     public int createRecord(Task task) {
-        this.tasks.put(id, new Task(id, task.getTitle(), task.getDescription(), task.getStatus()));
+        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus());
+        this.tasks.put(id, newTask);
+        if (!isTimePeriodAlreadyScheduled(task.getStartTime(), task.getDuration())) {
+            this.prioritizedTasks.add(newTask);
+        }
         return id++;
     }
 
@@ -33,8 +63,13 @@ public class InMemoryTaskManager implements TaskManager {
     public int createRecord(Subtask subtask) {
         Epic parentRecord = epics.get(subtask.getEpicId());
         if (parentRecord != null) {
-            subtasks.put(id, new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
+            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId());
+            subtasks.put(id, newSubtask);
             parentRecord.getSubtaskIds().add(id);
+
+            if (!isTimePeriodAlreadyScheduled(subtask.getStartTime(), subtask.getDuration())) {
+                this.prioritizedTasks.add(newSubtask);
+            }
         }
 
         return id++;
