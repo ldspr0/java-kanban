@@ -148,12 +148,14 @@ public class FunctionalityTests {
         // epic with 1 subtask
         Assertions.assertNotNull(epicWithOneSubtask);
         Assertions.assertEquals(Status.NEW, epicWithOneSubtask.getStatus());
+
         for (Integer subtaskId : epicWithOneSubtask.getSubtaskIds()) {
             Subtask subtask = taskManager.getSubtask(subtaskId);
             subtask.setStatus(Status.DONE);
             taskManager.updateRecord(subtask);
         }
         Assertions.assertEquals(Status.DONE, epicWithOneSubtask.getStatus());
+
         for (Integer subtaskId : epicWithOneSubtask.getSubtaskIds()) {
             taskManager.deleteSubtask(subtaskId);
         }
@@ -295,6 +297,33 @@ public class FunctionalityTests {
         taskManager.clearEpics();
         Assertions.assertTrue(taskManager.getAllEpics().isEmpty());
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
+
+    }
+
+    //TODO: Дописать тесты:
+
+    @Test
+    public void isPossibleToAddTaskInFreeTimeSlot() {
+
+    }
+
+    @Test
+    public void isNotPossibleToAddTaskInFreeTimeSlot() {
+
+    }
+
+    @Test
+    public void isPossibleToGetScheduledTimeSlotForTask() {
+
+    }
+
+    @Test
+    public void isPossibleToGetScheduledTimeSlotForEpic() {
+
+    }
+
+    @Test
+    public void isPossibleToGetAllTasksViaPriorityList() {
 
     }
 }

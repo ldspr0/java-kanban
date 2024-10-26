@@ -10,6 +10,7 @@ import ru.yandex.taskmanager.utility.Managers;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
@@ -121,12 +122,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
-        ArrayList<Subtask> result = new ArrayList<>();
-
-        for (Integer subtaskId : epics.get(epicId).getSubtaskIds()) {
-            result.add(subtasks.get(subtaskId));
-        }
-        return result;
+        return (ArrayList<Subtask>) this.subtasks.values().stream()
+                .filter(subtask -> subtask.getEpicId() == epicId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -163,11 +161,11 @@ public class InMemoryTaskManager implements TaskManager {
         }
         // Удалить из внутреннего листа эпика
         epic.getSubtaskIds().remove(id);
-        // Пересчитать статус основываясь на внутреннем листе
-        epic.recalculateStatus(getSubtasksByEpicId(epic.getId()));
         // Удалить из внешнего листа сабтасков
         historyManager.remove(id);
         subtasks.remove(id);
+        // Пересчитать статус основываясь на внутреннем листе
+        epic.recalculateStatus(getSubtasksByEpicId(epic.getId()));
     }
 
 

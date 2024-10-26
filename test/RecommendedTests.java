@@ -153,4 +153,39 @@ public class RecommendedTests {
         Assertions.assertEquals(createdTask2.getTitle(), firstTaskInHistory.getTitle());
         Assertions.assertEquals(updatedTask.getTitle(), lastTaskInHistory.getTitle());
     }
+
+
+    //TODO: Новые тесты -->
+    @Test
+    public void isEpicStatusNew() {
+        // all new
+
+
+        //Assertions.assertNotNull(taskManager);
+        //Assertions.assertInstanceOf(InMemoryTaskManager.class, taskManager);
+    }
+
+    @Test
+    public void isEpicStatusInProgress() {
+        // subtasks are new and done
+
+        // subtasks are in progress
+
+
+        //Assertions.assertNotNull(taskManager);
+        //Assertions.assertInstanceOf(InMemoryTaskManager.class, taskManager);
+    }
+
+    @Test
+    public void isEpicStatusDone() {
+        // all done
+
+
+        //Assertions.assertNotNull(taskManager);
+        //Assertions.assertInstanceOf(InMemoryTaskManager.class, taskManager);
+    }
+
+
+
+
 }
