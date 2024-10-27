@@ -160,7 +160,6 @@ public class RecommendedTests {
     public void isEpicStatusNew() {
         // all new
 
-
         //Assertions.assertNotNull(taskManager);
         //Assertions.assertInstanceOf(InMemoryTaskManager.class, taskManager);
     }

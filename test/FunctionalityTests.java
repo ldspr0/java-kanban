@@ -301,7 +301,6 @@ public class FunctionalityTests {
 
     }
 
-    //TODO: Дописать тесты:
     @Test
     public void isPossibleToAddTaskInFreeTimeSlot() {
         // tasks
