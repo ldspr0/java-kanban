@@ -22,7 +22,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final Comparator dateComparator = new StartDateTaskComparator();
     private final TreeSet<Task> prioritizedTasks = new TreeSet<>(dateComparator);
 
-    private TreeSet<Task> getPrioritizedTasks() {
+    public TreeSet<Task> getPrioritizedTasks() {
         return this.prioritizedTasks;
     }
 
@@ -32,8 +32,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Task prioritizedTask : this.prioritizedTasks) {
             if (prioritizedTask.getEndTime().isAfter(dateTime)
-                    && !prioritizedTask.getStartTime().isAfter(dateTime)
-                    && !dateTime.plus(duration).isAfter(prioritizedTask.getStartTime())
+                    && dateTime.plus(duration).isAfter(prioritizedTask.getStartTime())
             ) {
                return true;
             }
@@ -46,11 +45,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createRecord(Task task) {
-        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus());
-        this.tasks.put(id, newTask);
+        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(), task.getDuration() == null ? null : (int)task.getDuration().toMinutes());
         if (!isTimePeriodAlreadyScheduled(task.getStartTime(), task.getDuration())) {
             this.prioritizedTasks.add(newTask);
+        } else {
+            newTask.setStartTime(null);
+            newTask.setDuration(null);
         }
+        this.tasks.put(id, newTask);
         return id++;
     }
 
@@ -64,13 +66,17 @@ public class InMemoryTaskManager implements TaskManager {
     public int createRecord(Subtask subtask) {
         Epic parentRecord = epics.get(subtask.getEpicId());
         if (parentRecord != null) {
-            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId());
-            subtasks.put(id, newSubtask);
-            parentRecord.getSubtaskIds().add(id);
+            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getStartTime(), subtask.getDuration() == null ? null : (int)subtask.getDuration().toMinutes(), subtask.getEpicId());
+
 
             if (!isTimePeriodAlreadyScheduled(subtask.getStartTime(), subtask.getDuration())) {
                 this.prioritizedTasks.add(newSubtask);
+            } else {
+                newSubtask.setStartTime(null);
+                newSubtask.setDuration(null);
             }
+            subtasks.put(id, newSubtask);
+            parentRecord.getSubtaskIds().add(id);
         }
 
         return id++;

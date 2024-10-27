@@ -21,6 +21,15 @@ public class Task {
         this.status = status;
     }
 
+    public Task(int id, String title, String description, Status status, LocalDateTime startTime, Integer duration) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        this.startTime = startTime;
+        setDuration(duration);
+    }
+
     public int getId() {
         return id;
     }
@@ -50,7 +59,9 @@ public class Task {
     }
 
     public void setDuration(Integer minutes) {
-        this.duration = Duration.ofMinutes(minutes);
+        if (minutes != null) {
+            this.duration = Duration.ofMinutes(minutes);
+        }
     }
 
     public LocalDateTime getStartTime() {
@@ -85,6 +96,8 @@ public class Task {
                 ", title='" + getTitle() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", status=" + getStatus() +
+                ", startTime=" + getStartTime() +
+                ", duration=" + getDuration() +
                 '}';
     }
 }
