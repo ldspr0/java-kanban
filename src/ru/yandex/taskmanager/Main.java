@@ -7,24 +7,9 @@ import ru.yandex.taskmanager.model.Task;
 import ru.yandex.taskmanager.service.TaskManager;
 import ru.yandex.taskmanager.utility.Managers;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 public class Main {
 
     public static void main(String[] args) {
-
-//        TaskManager taskManager = Managers.getManager("FileManager");
-//        taskManager.createRecord(new Task(0, "Задача " + 1, "description", Status.NEW));
-//        Task task = taskManager.getTask(0);
-//        task.setStartTime(LocalDateTime.now());
-//        task.setDuration(30);
-//
-//        Duration test1 = task.getDuration();
-//        LocalDateTime tes2 = task.getStartTime();
-//        LocalDateTime test3 = task.getEndTime();
-
-
 
         System.out.println("Поехали!");
         //TaskManager taskManager = Managers.getDefault(); // Старый
