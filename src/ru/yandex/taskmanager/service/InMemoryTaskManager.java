@@ -34,7 +34,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (prioritizedTask.getEndTime().isAfter(dateTime)
                     && dateTime.plus(duration).isAfter(prioritizedTask.getStartTime())
             ) {
-               return true;
+                return true;
             }
             if (prioritizedTask.getStartTime().isAfter(dateTime.plus(duration))) {
                 break; // дальше искать уже не нужно
@@ -45,7 +45,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createRecord(Task task) {
-        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(), task.getDuration() == null ? null : (int)task.getDuration().toMinutes());
+        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(), task.getDuration() == null ? null : (int) task.getDuration().toMinutes());
         if (!isTimePeriodAlreadyScheduled(task.getStartTime(), task.getDuration())) {
             this.prioritizedTasks.add(newTask);
         } else {
@@ -66,7 +66,7 @@ public class InMemoryTaskManager implements TaskManager {
     public int createRecord(Subtask subtask) {
         Epic parentRecord = epics.get(subtask.getEpicId());
         if (parentRecord != null) {
-            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getStartTime(), subtask.getDuration() == null ? null : (int)subtask.getDuration().toMinutes(), subtask.getEpicId());
+            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getStartTime(), subtask.getDuration() == null ? null : (int) subtask.getDuration().toMinutes(), subtask.getEpicId());
 
 
             if (!isTimePeriodAlreadyScheduled(subtask.getStartTime(), subtask.getDuration())) {

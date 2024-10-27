@@ -25,7 +25,6 @@ public class FunctionalityTests {
     private final Random random = new Random();
 
 
-
     @BeforeEach
     public void beforeEach() {
         taskIds.addAll(DataFactory.createTasks(taskManager, NUMBER_OF_TASKS));

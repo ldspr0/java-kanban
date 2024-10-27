@@ -13,7 +13,7 @@ public class StartDateTaskComparator implements Comparator<Task> {
             return 1;
         } else if (t1.getStartTime().isEqual(t2.getStartTime())) {
             return 0;
-        }else {
+        } else {
             return -1;
         }
     }

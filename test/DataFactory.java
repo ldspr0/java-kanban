@@ -43,8 +43,7 @@ public class DataFactory {
                 if (i == 1) {
                     epicIdMoreThanOneSub = epicId;
                 }
-            }
-            else if (i == 2) {
+            } else if (i == 2) {
                 // гарантируем эпик с 2 сабтасками
                 epicId = epicIdMoreThanOneSub;
             } else {
