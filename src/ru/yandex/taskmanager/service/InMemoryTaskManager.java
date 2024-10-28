@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
-    private final String MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED = "На это время уже запланирована другая задача.";
+    private final static String MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED = "На это время уже запланирована другая задача.";
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     private final HashMap<Integer, Task> tasks = new HashMap<>();
