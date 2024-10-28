@@ -98,6 +98,7 @@ public class Task {
                 ", status=" + getStatus() +
                 ", startTime=" + getStartTime() +
                 ", duration=" + getDuration() +
+                ", endTime=" + getEndTime() +
                 '}';
     }
 }

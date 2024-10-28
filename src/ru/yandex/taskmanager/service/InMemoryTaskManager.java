@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
+    private final String MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED = "На это время уже запланирована другая задача.";
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     private final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -22,8 +23,8 @@ public class InMemoryTaskManager implements TaskManager {
     private final Comparator dateComparator = new StartDateTaskComparator();
     private final TreeSet<Task> prioritizedTasks = new TreeSet<>(dateComparator);
 
-    public TreeSet<Task> getPrioritizedTasks() {
-        return this.prioritizedTasks;
+    public List<Task> getPrioritizedTasks() {
+        return List.copyOf(this.prioritizedTasks);
     }
 
     private boolean isTimePeriodAlreadyScheduled(LocalDateTime dateTime, Duration duration) {
@@ -45,13 +46,18 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createRecord(Task task) {
-        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(), task.getDuration() == null ? null : (int) task.getDuration().toMinutes());
-        if (!isTimePeriodAlreadyScheduled(task.getStartTime(), task.getDuration())) {
-            this.prioritizedTasks.add(newTask);
-        } else {
-            newTask.setStartTime(null);
-            newTask.setDuration(null);
+        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(),
+                task.getDuration() == null ? null : (int) task.getDuration().toMinutes());
+
+        if (task.getStartTime() != null && task.getDuration() != null) {
+            if (isTimePeriodAlreadyScheduled(task.getStartTime(), task.getDuration())) {
+                System.out.println(MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED);
+                return -1;
+            } else {
+                this.prioritizedTasks.add(newTask);
+            }
         }
+
         this.tasks.put(id, newTask);
         return id++;
     }
@@ -66,20 +72,25 @@ public class InMemoryTaskManager implements TaskManager {
     public int createRecord(Subtask subtask) {
         Epic parentRecord = epics.get(subtask.getEpicId());
         if (parentRecord != null) {
-            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getStartTime(), subtask.getDuration() == null ? null : (int) subtask.getDuration().toMinutes(), subtask.getEpicId());
+            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(),
+                    subtask.getStartTime(),
+                    subtask.getDuration() == null ? null : (int) subtask.getDuration().toMinutes(),
+                    subtask.getEpicId());
 
-
-            if (!isTimePeriodAlreadyScheduled(subtask.getStartTime(), subtask.getDuration())) {
-                this.prioritizedTasks.add(newSubtask);
-            } else {
-                newSubtask.setStartTime(null);
-                newSubtask.setDuration(null);
+            if (subtask.getStartTime() != null && subtask.getDuration() != null) {
+                if (isTimePeriodAlreadyScheduled(subtask.getStartTime(), subtask.getDuration())) {
+                    System.out.println(MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED);
+                    return -1;
+                } else {
+                    this.prioritizedTasks.add(newSubtask);
+                }
             }
+
             subtasks.put(id, newSubtask);
             parentRecord.getSubtaskIds().add(id);
+            return id++;
         }
-
-        return id++;
+        return -1;
     }
 
     @Override

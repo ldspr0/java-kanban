@@ -327,7 +327,7 @@ public class FunctionalityTests {
         Assertions.assertTrue(taskManager.getAllTasks().isEmpty());
         taskManager.createRecord(new Task(0, "Задача 1", "task description 1", Status.NEW, LocalDateTime.now(), 30));
         taskManager.createRecord(new Task(0, "Задача 2", "task description 2", Status.NEW, LocalDateTime.now(), 30));
-        Assertions.assertEquals(2, taskManager.getAllTasks().size());
+        Assertions.assertEquals(1, taskManager.getAllTasks().size());
         Assertions.assertEquals(1, taskManager.getPrioritizedTasks().size());
 
         // subtasks
@@ -336,7 +336,7 @@ public class FunctionalityTests {
         Integer epicId = epicIds.get(random.nextInt(epicIds.size()));
         taskManager.createRecord(new Subtask(0, "ПодЗадача 1", "description sub 1", Status.NEW, LocalDateTime.now().plusMinutes(30), 30, epicId));
         taskManager.createRecord(new Subtask(0, "ПодЗадача 2", "description sub 2", Status.NEW, LocalDateTime.now().plusMinutes(30), 30, epicId));
-        Assertions.assertEquals(2, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(1, taskManager.getAllSubtasks().size());
         Assertions.assertEquals(2, taskManager.getPrioritizedTasks().size());
     }
 
