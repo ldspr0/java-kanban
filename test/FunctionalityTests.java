@@ -8,6 +8,7 @@ import ru.yandex.taskmanager.model.Task;
 import ru.yandex.taskmanager.service.TaskManager;
 import ru.yandex.taskmanager.utility.Managers;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
@@ -22,7 +23,6 @@ public class FunctionalityTests {
     private final ArrayList<Integer> subtaskIds = new ArrayList<>();
     private final ArrayList<Integer> epicIds = new ArrayList<>();
     private final Random random = new Random();
-
 
 
     @BeforeEach
@@ -148,12 +148,14 @@ public class FunctionalityTests {
         // epic with 1 subtask
         Assertions.assertNotNull(epicWithOneSubtask);
         Assertions.assertEquals(Status.NEW, epicWithOneSubtask.getStatus());
+
         for (Integer subtaskId : epicWithOneSubtask.getSubtaskIds()) {
             Subtask subtask = taskManager.getSubtask(subtaskId);
             subtask.setStatus(Status.DONE);
             taskManager.updateRecord(subtask);
         }
         Assertions.assertEquals(Status.DONE, epicWithOneSubtask.getStatus());
+
         for (Integer subtaskId : epicWithOneSubtask.getSubtaskIds()) {
             taskManager.deleteSubtask(subtaskId);
         }
@@ -295,6 +297,81 @@ public class FunctionalityTests {
         taskManager.clearEpics();
         Assertions.assertTrue(taskManager.getAllEpics().isEmpty());
         Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
+
+    }
+
+    @Test
+    public void isPossibleToAddTaskInFreeTimeSlot() {
+        // tasks
+        taskManager.clearTasks();
+        Assertions.assertTrue(taskManager.getAllTasks().isEmpty());
+        taskManager.createRecord(new Task(0, "Задача 1", "task description 1", Status.NEW, LocalDateTime.now(), 30));
+        taskManager.createRecord(new Task(0, "Задача 2", "task description 2", Status.NEW, LocalDateTime.now().plusMinutes(60), 30));
+        Assertions.assertEquals(2, taskManager.getAllTasks().size());
+        Assertions.assertEquals(2, taskManager.getPrioritizedTasks().size());
+
+        // subtasks
+        taskManager.clearSubtasks();
+        Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
+        Integer epicId = epicIds.get(random.nextInt(epicIds.size()));
+        taskManager.createRecord(new Subtask(0, "ПодЗадача 1", "description sub 1", Status.NEW, LocalDateTime.now().plusMinutes(90), 30, epicId));
+        taskManager.createRecord(new Subtask(0, "ПодЗадача 2", "description sub 2", Status.NEW, LocalDateTime.now().plusMinutes(120), 30, epicId));
+        Assertions.assertEquals(2, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(4, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    public void isNotPossibleToAddTaskInScheduledTimeSlot() {
+        // tasks
+        taskManager.clearTasks();
+        Assertions.assertTrue(taskManager.getAllTasks().isEmpty());
+        taskManager.createRecord(new Task(0, "Задача 1", "task description 1", Status.NEW, LocalDateTime.now(), 30));
+        taskManager.createRecord(new Task(0, "Задача 2", "task description 2", Status.NEW, LocalDateTime.now(), 30));
+        Assertions.assertEquals(1, taskManager.getAllTasks().size());
+        Assertions.assertEquals(1, taskManager.getPrioritizedTasks().size());
+
+        // subtasks
+        taskManager.clearSubtasks();
+        Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
+        Integer epicId = epicIds.get(random.nextInt(epicIds.size()));
+        taskManager.createRecord(new Subtask(0, "ПодЗадача 1", "description sub 1", Status.NEW, LocalDateTime.now().plusMinutes(30), 30, epicId));
+        taskManager.createRecord(new Subtask(0, "ПодЗадача 2", "description sub 2", Status.NEW, LocalDateTime.now().plusMinutes(30), 30, epicId));
+        Assertions.assertEquals(1, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(2, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    public void isPossibleToGetScheduledTimeSlotForEpic() {
+        // subtasks
+        taskManager.clearSubtasks();
+        Assertions.assertTrue(taskManager.getAllSubtasks().isEmpty());
+        Integer epicId = epicIds.get(random.nextInt(epicIds.size()));
+        int durationInMinutes1 = 30;
+        int randomTaskDurationInMinutes = 15;
+        int durationInMinutes2 = 90;
+        LocalDateTime startTimeTask1 = LocalDateTime.now();
+        LocalDateTime startTimeTask2 = LocalDateTime.now().plusMinutes(randomTaskDurationInMinutes + durationInMinutes1);
+
+
+        // just random task is added fill prioritized tasks with some other data
+        taskManager.createRecord(new Task(0, "Задача 1", "task description 1", Status.NEW, (startTimeTask1.minusDays(2)), (randomTaskDurationInMinutes)));
+        // subtask 1
+        taskManager.createRecord(new Subtask(0, "ПодЗадача 1", "description sub 1", Status.NEW, startTimeTask1, durationInMinutes1, epicId));
+        // just random task is put between 2 subtasks
+        taskManager.createRecord(new Task(0, "Задача 2", "task description 2", Status.NEW, startTimeTask1.plusMinutes(durationInMinutes1), randomTaskDurationInMinutes));
+        // subtask 2
+        taskManager.createRecord(new Subtask(0, "ПодЗадача 2", "description sub 2", Status.NEW, startTimeTask2, durationInMinutes2, epicId));
+        // just random task is added fill prioritized tasks with some other data
+        taskManager.createRecord(new Task(0, "Задача 3", "task description 3", Status.NEW, startTimeTask2.plusDays(2), randomTaskDurationInMinutes));
+
+        Assertions.assertEquals(2, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(5, taskManager.getPrioritizedTasks().size());
+
+        Epic epic = taskManager.getEpic(epicId);
+        ArrayList<Subtask> subtasks = (ArrayList<Subtask>) taskManager.getSubtasksByEpicId(epicId);
+        Assertions.assertEquals(startTimeTask1, epic.getStartTime(subtasks));
+        Assertions.assertEquals((durationInMinutes1 + durationInMinutes2), epic.getDuration(subtasks));
+        Assertions.assertEquals(startTimeTask2.plusMinutes(durationInMinutes2), epic.getEndTime(subtasks));
 
     }
 }

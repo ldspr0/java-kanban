@@ -1,25 +1,64 @@
 package ru.yandex.taskmanager.service;
 
+import ru.yandex.taskmanager.comparators.StartDateTaskComparator;
 import ru.yandex.taskmanager.historyTracker.HistoryManager;
 import ru.yandex.taskmanager.model.Epic;
 import ru.yandex.taskmanager.model.Subtask;
 import ru.yandex.taskmanager.model.Task;
 import ru.yandex.taskmanager.utility.Managers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     public static int id = 0;
+    private static final String MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED = "На это время уже запланирована другая задача.";
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private final Comparator dateComparator = new StartDateTaskComparator();
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(dateComparator);
+
+    public List<Task> getPrioritizedTasks() {
+        return List.copyOf(this.prioritizedTasks);
+    }
+
+    private boolean isTimePeriodAlreadyScheduled(LocalDateTime dateTime, Duration duration) {
+        if (dateTime == null || duration == null) {
+            return true;
+        }
+        for (Task prioritizedTask : this.prioritizedTasks) {
+            if (prioritizedTask.getEndTime().isAfter(dateTime)
+                    && dateTime.plus(duration).isAfter(prioritizedTask.getStartTime())
+            ) {
+                return true;
+            }
+            if (prioritizedTask.getStartTime().isAfter(dateTime.plus(duration))) {
+                break; // дальше искать уже не нужно
+            }
+        }
+        return false;
+    }
 
     @Override
     public int createRecord(Task task) {
-        this.tasks.put(id, new Task(id, task.getTitle(), task.getDescription(), task.getStatus()));
+        Task newTask = new Task(id, task.getTitle(), task.getDescription(), task.getStatus(), task.getStartTime(),
+                task.getDuration() == null ? null : (int) task.getDuration().toMinutes());
+
+        if (task.getStartTime() != null && task.getDuration() != null) {
+            if (isTimePeriodAlreadyScheduled(task.getStartTime(), task.getDuration())) {
+                System.out.println(MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED);
+                return -1;
+            } else {
+                this.prioritizedTasks.add(newTask);
+            }
+        }
+
+        this.tasks.put(id, newTask);
         return id++;
     }
 
@@ -33,11 +72,25 @@ public class InMemoryTaskManager implements TaskManager {
     public int createRecord(Subtask subtask) {
         Epic parentRecord = epics.get(subtask.getEpicId());
         if (parentRecord != null) {
-            subtasks.put(id, new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId()));
-            parentRecord.getSubtaskIds().add(id);
-        }
+            Subtask newSubtask = new Subtask(id, subtask.getTitle(), subtask.getDescription(), subtask.getStatus(),
+                    subtask.getStartTime(),
+                    subtask.getDuration() == null ? null : (int) subtask.getDuration().toMinutes(),
+                    subtask.getEpicId());
 
-        return id++;
+            if (subtask.getStartTime() != null && subtask.getDuration() != null) {
+                if (isTimePeriodAlreadyScheduled(subtask.getStartTime(), subtask.getDuration())) {
+                    System.out.println(MESSAGE_TIMESLOT_IS_ALREADY_SCHEDULED);
+                    return -1;
+                } else {
+                    this.prioritizedTasks.add(newSubtask);
+                }
+            }
+
+            subtasks.put(id, newSubtask);
+            parentRecord.getSubtaskIds().add(id);
+            return id++;
+        }
+        return -1;
     }
 
     @Override
@@ -86,12 +139,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
-        ArrayList<Subtask> result = new ArrayList<>();
-
-        for (Integer subtaskId : epics.get(epicId).getSubtaskIds()) {
-            result.add(subtasks.get(subtaskId));
-        }
-        return result;
+        return (ArrayList<Subtask>) this.subtasks.values().stream()
+                .filter(subtask -> subtask.getEpicId() == epicId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -128,11 +178,11 @@ public class InMemoryTaskManager implements TaskManager {
         }
         // Удалить из внутреннего листа эпика
         epic.getSubtaskIds().remove(id);
-        // Пересчитать статус основываясь на внутреннем листе
-        epic.recalculateStatus(getSubtasksByEpicId(epic.getId()));
         // Удалить из внешнего листа сабтасков
         historyManager.remove(id);
         subtasks.remove(id);
+        // Пересчитать статус основываясь на внутреннем листе
+        epic.recalculateStatus(getSubtasksByEpicId(epic.getId()));
     }
 
 

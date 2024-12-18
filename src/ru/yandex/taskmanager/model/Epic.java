@@ -2,6 +2,7 @@ package ru.yandex.taskmanager.model;
 
 import ru.yandex.taskmanager.enums.Status;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -47,6 +48,42 @@ public class Epic extends Task {
     }
 
     public void setStatus(Status status) {
+    }
+
+    public Long getDuration(ArrayList<Subtask> subtasks) {
+        return subtasks.stream()
+                .filter(subtask -> subtask.getDuration() != null && subtask.getStartTime() != null)
+                .map(subtask -> subtask.getDuration().toMinutes())
+                .reduce(0L, Long::sum);
+    }
+
+    public LocalDateTime getStartTime(ArrayList<Subtask> subtasks) {
+        LocalDateTime startTime = null;
+        for (Subtask subtask : subtasks) {
+            if (subtask.getStartTime() == null) {
+                continue;
+            }
+            if (startTime == null || startTime.isAfter(subtask.getStartTime())) {
+                startTime = subtask.getStartTime();
+            }
+        }
+
+        return startTime;
+    }
+
+
+    public LocalDateTime getEndTime(ArrayList<Subtask> subtasks) {
+        LocalDateTime endTime = null;
+        for (Subtask subtask : subtasks) {
+            if (subtask.getEndTime() == null) {
+                continue;
+            }
+            if (endTime == null || endTime.isBefore(subtask.getEndTime())) {
+                endTime = subtask.getEndTime();
+            }
+        }
+
+        return endTime;
     }
 
     @Override
