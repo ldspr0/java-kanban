@@ -1,47 +1,15 @@
 package ru.yandex.taskmanager.server;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.taskmanager.enums.EndPoint;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import static ru.yandex.taskmanager.server.HttpTaskServer.LABEL_NOT_FOUND;
 
 public class BaseHttpHandler implements HttpHandler {
-
-    public static class DurationTypeAdapter extends TypeAdapter<Duration> {
-        @Override
-        public void write(JsonWriter jsonWriter, Duration duration) throws IOException {
-            jsonWriter.value(duration != null ? String.valueOf(duration.toMinutes()) : "");
-        }
-
-        @Override
-        public Duration read(JsonReader jsonReader) throws IOException {
-            String duraitonValue = jsonReader.nextString();
-            return duraitonValue.isEmpty() ? null : Duration.ofMinutes(Long.parseLong(duraitonValue));
-        }
-    }
-
-    public static class LocalDateTimeTypeAdapter extends TypeAdapter<LocalDateTime> {
-        private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
-        @Override
-        public void write(JsonWriter jsonWriter, LocalDateTime localDateTime) throws IOException {
-            jsonWriter.value(localDateTime != null ? localDateTime.format(dtf) : "");
-        }
-
-        @Override
-        public LocalDateTime read(JsonReader jsonReader) throws IOException {
-            String localDateTimeValue = jsonReader.nextString();
-            return localDateTimeValue.isEmpty() ? null : LocalDateTime.parse(localDateTimeValue, dtf);
-        }
-    }
 
     protected void sendText(HttpExchange exchange, String text, int responseCode) throws IOException {
         byte[] resp = text.getBytes(StandardCharsets.UTF_8);
@@ -92,8 +60,7 @@ public class BaseHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String response = "No context found for request";
-        sendText(exchange, response, 404);
+        sendText(exchange, LABEL_NOT_FOUND, 404);
         exchange.close();
 
     }
